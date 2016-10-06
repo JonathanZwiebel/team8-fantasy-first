@@ -39,12 +39,16 @@ class Alliance:
 	def get_teams(self):
 		return self.teams
 
+	def as_string(self):
+		return " ".join(self.teams)
+
 class BasicTBAMatch(object):
 
 	def __init__(self, match_dict):
 		self.comp_level = match_dict["comp_level"]
 		self.match_number = match_dict["match_number"]
-		self.key = match_dict["key"]
+		self.key = match_dict["key"].encode('ascii', 'ignore')
+
 		self.blue_alliance = Alliance(match_dict["alliances"]["blue"]["teams"][0],
 									  match_dict["alliances"]["blue"]["teams"][1],
 									  match_dict["alliances"]["blue"]["teams"][2])
@@ -54,6 +58,14 @@ class BasicTBAMatch(object):
 
 	def get_key(self):
 		return self.key
+
+	def get_key_as_displayable(self):
+		display = self.key.split("_")[1]
+
+		if display[0:2] == "qm":
+			return display.split("qm")[1]
+		else:
+			return display
 
 	def get_red_alliance(self):
 		return self.red_alliance
@@ -119,6 +131,19 @@ class FullTBAMatch(object):
 		self.blue = Alliance(match_dict["alliances"]["blue"]["teams"][0],
 							match_dict["alliances"]["blue"]["teams"][1],
 							match_dict["alliances"]["blue"]["teams"][2])
+
+	def get_red_alliance(self):
+		return self.red
+
+	def get_blue_alliance(self):
+		return self.blue
+
+	def get_blue_total(self):
+		return self.blue_alliance_performance["totalPoints"]
+
+	def get_red_total(self):
+		return self.red_alliance_performance["totalPoints"]
+
 
 
 get_match("2016cmp_f1m1")
