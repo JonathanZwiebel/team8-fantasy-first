@@ -24,6 +24,7 @@ for team in teams:
 # Fills coefficient and resultant vector with zeroes
 A = sp.zeros((len(teams),len(teams)),dtype=int)
 b_points = sp.zeros((len(teams),1),dtype=int)
+b_tele_high = sp.zeros((len(teams),1),dtype=int)
 
 # Iterates through each match
 for match in matches:
@@ -39,6 +40,9 @@ for match in matches:
 		for k in range(3):
 			b_points[indexed_teams.index(blue_teams[k])] += match.get_blue_total()
 			b_points[indexed_teams.index(red_teams[k])] += match.get_red_total()
+			b_tele_high[indexed_teams.index(blue_teams[k])] += match.get_blue_teleop_boulders_high()
+			b_tele_high[indexed_teams.index(red_teams[k])] += match.get_red_teleop_boulders_high()
+
 
 # Removes teams that did not play to keep matrix Hermitian
 # TODO(Jonathan): Fill the matrix dynamically?
@@ -48,6 +52,7 @@ while index < len(A):
 		A = sp.delete(A, index, 0)
 		A = sp.delete(A, index, 1)
 		b_points = sp.delete(b_points, index, 0)
+		b_tele_high = sp.delete(b_tele_high, index, 0)
 		team_to_delete = indexed_teams[index]
 		indexed_teams = sp.delete(indexed_teams, index, 0)
 	else:
@@ -58,20 +63,22 @@ L = sp.linalg.cholesky(A, lower=True, overwrite_a=True, check_finite=False)
 
 # Forward substitution
 z_points = sp.linalg.solve_triangular(L, b_points, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+z_tele_high = sp.linalg.solve_triangular(L, b_tele_high, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
 
 # Backward substitution
 Lt = sp.transpose(L)
 x_points = sp.linalg.solve_triangular(Lt, z_points, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+x_tele_high = sp.linalg.solve_triangular(Lt, z_tele_high, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
 
 # Prints results
-sp.set_printoptions(threshold=sp.inf)
-result = sp.empty(shape=(len(x_points),2))
-for i in range(len(x_points)):
-	result[i][0] = float(indexed_teams[i][3:])
-	result[i][1] = float(x_points[i])
+sp.set_printoptions(threshold=sp.inf,suppress=True)
+result = sp.empty(shape=(len(x_tele_high),2))
+for i in range(len(x_tele_high)):
+	result[i][0] = int(indexed_teams[i][3:])
+	result[i][1] = float(x_tele_high[i])
 result = result[sp.array(result[:,1].argsort(axis=0).tolist()).ravel()]
 result = sp.flipud(result)
 
-print "Teams by OPR_total_points"
+print "Teams by Teleop High Goals"
 print result
 

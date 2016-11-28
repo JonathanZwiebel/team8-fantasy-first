@@ -199,3 +199,9 @@ class FullTBAMatch(object):
 
 	def get_red_total(self):
 		return self.red_alliance_performance["totalPoints"]
+
+	def get_blue_teleop_boulders_high(self):
+		return self.blue_alliance_performance["teleopBouldersHigh"]
+
+	def get_red_teleop_boulders_high(self):
+		return self.red_alliance_performance["teleopBouldersHigh"]
