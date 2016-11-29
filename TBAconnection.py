@@ -1,5 +1,6 @@
 import urllib2
 import json
+import math
 
 def get_matches_with_teams(eventKey):
 	"""
@@ -205,3 +206,61 @@ class FullTBAMatch(object):
 
 	def get_red_teleop_boulders_high(self):
 		return self.red_alliance_performance["teleopBouldersHigh"]
+
+	def get_blue_auto_points(self):
+		return self.blue_alliance_performance["autoPoints"]
+
+	def get_red_auto_points(self):
+		return self.red_alliance_performance["autoPoints"]
+
+	def get_blue_rp(self):
+		rp = 0
+		if self.blue_alliance_performance["teleopDefensesBreached"]:
+			rp += 1
+		if self.blue_alliance_performance["teleopTowerCaptured"]:
+			rp += 1
+		if self.get_blue_total() > self.get_red_total():
+			rp += 2
+		elif self.get_blue_total() == self.get_red_total():
+			rp += 1
+		return rp
+
+	def get_red_rp(self):
+		rp = 0
+		if self.red_alliance_performance["teleopDefensesBreached"]:
+			rp += 1
+		if self.red_alliance_performance["teleopTowerCaptured"]:
+			rp += 1
+		if self.get_red_total() > self.get_blue_total():
+			rp += 2
+		elif self.get_blue_total() == self.get_red_total():
+			rp += 1
+		return rp
+
+	def get_blue_breach(self):
+		if self.blue_alliance_performance["teleopDefensesBreached"]:
+			return 1
+		return 0
+
+	def get_red_breach(self):
+		if self.red_alliance_performance["teleopDefensesBreached"]:
+			return 1
+		return 0
+
+	def get_blue_crossings(self):
+		total = 0
+		total += self.blue_alliance_performance["position1crossings"]
+		total += self.blue_alliance_performance["position2crossings"]
+		total += self.blue_alliance_performance["position3crossings"]
+		total += self.blue_alliance_performance["position4crossings"]
+		total += self.blue_alliance_performance["position5crossings"]
+		return total
+		
+	def get_red_crossings(self):
+		total = 0
+		total += self.red_alliance_performance["position1crossings"]
+		total += self.red_alliance_performance["position2crossings"]
+		total += self.red_alliance_performance["position3crossings"]
+		total += self.red_alliance_performance["position4crossings"]
+		total += self.red_alliance_performance["position5crossings"]
+		return total
