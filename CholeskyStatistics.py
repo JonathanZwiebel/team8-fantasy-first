@@ -10,6 +10,7 @@
 import TBAconnection 
 import scipy as sp
 from scipy import linalg
+import math
 
 # Receieves data from TBA API
 eventid = "2016casj"
@@ -25,6 +26,10 @@ for team in teams:
 A = sp.zeros((len(teams),len(teams)),dtype=int)
 b_points = sp.zeros((len(teams),1),dtype=int)
 b_tele_high = sp.zeros((len(teams),1),dtype=int)
+b_auto_points = sp.zeros((len(teams),1),dtype=int)
+b_rp = sp.zeros((len(teams),1),dtype=int)
+b_breach = sp.zeros((len(teams),1),dtype=int)
+b_crossings = sp.zeros((len(teams),1),dtype=float)
 
 # Iterates through each match
 for match in matches:
@@ -34,6 +39,7 @@ for match in matches:
 		# Fills the coefficient matrix
 		for i in range(3):
 			for j in range(3):
+				# TODO: Consider taking the log of the L matrix vlaues when calculating OPRs of binary statistics
 				A[indexed_teams.index(blue_teams[i])][indexed_teams.index(blue_teams[j])] += 1
 				A[indexed_teams.index(red_teams[i])][indexed_teams.index(red_teams[j])] += 1
 		# Fills the resultant vector
@@ -42,6 +48,14 @@ for match in matches:
 			b_points[indexed_teams.index(red_teams[k])] += match.get_red_total()
 			b_tele_high[indexed_teams.index(blue_teams[k])] += match.get_blue_teleop_boulders_high()
 			b_tele_high[indexed_teams.index(red_teams[k])] += match.get_red_teleop_boulders_high()
+			b_auto_points[indexed_teams.index(blue_teams[k])] += match.get_blue_auto_points()
+			b_auto_points[indexed_teams.index(red_teams[k])] += match.get_red_auto_points()
+			b_rp[indexed_teams.index(blue_teams[k])] += match.get_blue_rp()
+			b_rp[indexed_teams.index(red_teams[k])] += match.get_red_rp()
+			b_breach[indexed_teams.index(blue_teams[k])] += match.get_blue_breach()
+			b_breach[indexed_teams.index(red_teams[k])] += match.get_red_breach()
+			b_crossings[indexed_teams.index(blue_teams[k])] += match.get_blue_crossings()
+			b_crossings[indexed_teams.index(red_teams[k])] += match.get_red_crossings()
 
 
 # Removes teams that did not play to keep matrix Hermitian
@@ -53,32 +67,48 @@ while index < len(A):
 		A = sp.delete(A, index, 1)
 		b_points = sp.delete(b_points, index, 0)
 		b_tele_high = sp.delete(b_tele_high, index, 0)
+		b_auto_points = sp.delete(b_auto_points, index, 0)
+		b_rp = sp.delete(b_rp, index, 0)
+		b_breach = sp.delete(b_breach, index, 0)
+		b_crossings = sp.delete(b_crossings, index, 0)
 		team_to_delete = indexed_teams[index]
 		indexed_teams = sp.delete(indexed_teams, index, 0)
 	else:
 		index += 1
 
 # Cholesky decomposition
+cond = sp.linalg.expm_cond(A)
 L = sp.linalg.cholesky(A, lower=True, overwrite_a=True, check_finite=False)
 
 # Forward substitution
 z_points = sp.linalg.solve_triangular(L, b_points, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
 z_tele_high = sp.linalg.solve_triangular(L, b_tele_high, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+z_auto_points = sp.linalg.solve_triangular(L, b_auto_points, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+z_rp = sp.linalg.solve_triangular(L, b_rp, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+z_breach = sp.linalg.solve_triangular(L, b_breach, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+z_crossings = sp.linalg.solve_triangular(L, b_crossings, lower=True, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+
 
 # Backward substitution
 Lt = sp.transpose(L)
 x_points = sp.linalg.solve_triangular(Lt, z_points, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
 x_tele_high = sp.linalg.solve_triangular(Lt, z_tele_high, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+x_auto_points = sp.linalg.solve_triangular(Lt, z_auto_points, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+x_rp = sp.linalg.solve_triangular(Lt, z_rp, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+x_breach = sp.linalg.solve_triangular(Lt, z_breach, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+x_crossings = sp.linalg.solve_triangular(Lt, z_crossings, lower=False, trans=0, unit_diagonal=False, overwrite_b=True, check_finite=False)
+
 
 # Prints results
 sp.set_printoptions(threshold=sp.inf,suppress=True)
-result = sp.empty(shape=(len(x_tele_high),2))
-for i in range(len(x_tele_high)):
+result = sp.empty(shape=(len(x_crossings),2))
+for i in range(len(x_crossings)):
 	result[i][0] = int(indexed_teams[i][3:])
-	result[i][1] = float(x_tele_high[i])
+	result[i][1] = float(x_crossings[i])
 result = result[sp.array(result[:,1].argsort(axis=0).tolist()).ravel()]
 result = sp.flipud(result)
 
-print "Teams by Teleop High Goals"
+print "Teams by OPR of Total Crossings"
 print result
 
+print "Condition Number: {}".format(cond)
