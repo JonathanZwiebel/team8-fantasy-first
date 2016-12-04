@@ -264,3 +264,23 @@ class FullTBAMatch(object):
 		total += self.red_alliance_performance["position4crossings"]
 		total += self.red_alliance_performance["position5crossings"]
 		return total
+
+	def get_blue_tower_damage(self):
+		#return 8 - self.red_alliance_performance["towerEndStrength"]
+		return -1
+
+	def get_red_tower_damage(self):
+		#return 8 - self.blue_alliance_performance["towerEndStrength"]
+		return -1
+
+	def get_blue_scale_points(self):
+		return self.blue_alliance_performance["teleopScalePoints"]
+
+	def get_red_scale_points(self):
+		return self.red_alliance_performance["teleopScalePoints"]
+
+	def get_blue_winning_marging(self):
+		return self.blue_alliance_performance["totalPoints"] - self.red_alliance_performance["totalPoints"]
+
+	def get_red_winning_marging(self):
+		return self.red_alliance_performance["totalPoints"] - self.blue_alliance_performance["totalPoints"]
