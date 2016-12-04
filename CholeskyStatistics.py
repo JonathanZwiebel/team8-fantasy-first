@@ -58,8 +58,8 @@ for match in matches:
 			B[indexed_teams.index(red_teams[k])][6] += match.get_red_tower_damage()
 			B[indexed_teams.index(blue_teams[k])][7] += match.get_blue_scale_points()
 			B[indexed_teams.index(red_teams[k])][7] += match.get_red_scale_points()
-			B[indexed_teams.index(blue_teams[k])][7] += match.get_blue_winning_margin()
-			B[indexed_teams.index(red_teams[k])][7] += match.get_red_winning_margin()
+			B[indexed_teams.index(blue_teams[k])][8] += match.get_blue_winning_margin()
+			B[indexed_teams.index(red_teams[k])][8] += match.get_red_winning_margin()
 
 
 # Removes teams that did not play to keep matrix Hermitian
@@ -97,7 +97,7 @@ for i in range(len(X)):
 	result[i][0] = int(indexed_teams[i][3:])
 	for j in range(1, len(statistics) + 1):
 		result[i][j] = float(X[i][j-1])
-sortby = "Winning Maring"
+sortby = "Winning Margin"
 result = result[sp.array(result[:,statistics.index(sortby) + 1].argsort(axis=0).tolist()).ravel()]
 result = sp.flipud(result)
 

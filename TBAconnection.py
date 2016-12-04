@@ -279,8 +279,8 @@ class FullTBAMatch(object):
 	def get_red_scale_points(self):
 		return self.red_alliance_performance["teleopScalePoints"]
 
-	def get_blue_winning_marging(self):
+	def get_blue_winning_margin(self):
 		return self.blue_alliance_performance["totalPoints"] - self.red_alliance_performance["totalPoints"]
 
-	def get_red_winning_marging(self):
+	def get_red_winning_margin(self):
 		return self.red_alliance_performance["totalPoints"] - self.blue_alliance_performance["totalPoints"]
