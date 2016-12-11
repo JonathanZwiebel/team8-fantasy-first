@@ -284,3 +284,15 @@ class FullTBAMatch(object):
 
 	def get_red_winning_margin(self):
 		return self.red_alliance_performance["totalPoints"] - self.blue_alliance_performance["totalPoints"]
+
+	def get_blue_high(self):
+		return self.blue_alliance_performance["teleopBouldersHigh"] + self.blue_alliance_performance["autoBouldersHigh"]
+
+	def get_red_high(self):
+		return self.red_alliance_performance["teleopBouldersHigh"] + self.red_alliance_performance["autoBouldersHigh"]
+
+	def get_blue_low(self):
+		return self.blue_alliance_performance["teleopBouldersLow"] + self.blue_alliance_performance["autoBouldersLow"]
+
+	def get_red_low(self):
+		return self.red_alliance_performance["teleopBouldersLow"] + self.red_alliance_performance["autoBouldersLow"]
