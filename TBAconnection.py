@@ -17,6 +17,7 @@ def get_matches_with_teams(eventKey):
 
 	return return_val
 
+
 def get_teams_at_event(eventKey):
 	"""
 	Method that will return a list of TBATeams

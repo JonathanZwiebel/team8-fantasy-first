@@ -3,8 +3,8 @@
 # Current setup uses real value equivalent to score ratio
 
 STARTING_ELO = 1500
-STRENGTH_FACTOR = 400
-ADJUSTMENT_FACTOR = 32
+STRENGTH_FACTOR = 133
+ADJUSTMENT_FACTOR = 192
 
 import TBAconnection 
 import math
@@ -52,6 +52,7 @@ result = sp.empty(shape=(len(indexed_teams), 2))
 for i in range(len(indexed_teams)):
 	result[i][0] = int(indexed_teams[i][3:])
 	result[i][1] = elo[i]
+	
 result = result[sp.array(result[:,1].argsort(axis=0).tolist()).ravel()]
 result = sp.flipud(result)
 print "Teams by Score-Based QM Elo rating"
