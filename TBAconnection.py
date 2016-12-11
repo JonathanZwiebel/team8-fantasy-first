@@ -195,6 +195,13 @@ class FullTBAMatch(object):
 	def get_blue_alliance(self):
 		return self.blue
 
+	def get_winner(self):
+		if self.blue_alliance_performance["totalPoints"] > self.red_alliance_performance["totalPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["totalPoints"] < self.red_alliance_performance["totalPoints"]:
+			return "red"
+		return "tie"
+
 	def get_blue_total(self):
 		return self.blue_alliance_performance["totalPoints"]
 
