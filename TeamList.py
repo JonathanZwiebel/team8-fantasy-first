@@ -5,10 +5,10 @@
 
 import TBAconnection 
 
-def generate_teamlist(eventid, header=""):
+def generate_teamlist(eventid, event_type, header=""):
 	teams =  TBAconnection.get_teams_at_event(eventid)
 
-	filename = "data/teamlists/" + eventid + ".txt"
+	filename = "data/teamlists/" + event_type + "/"+ eventid + ".txt"
 	file = open(filename, "w")
 
 	file.write(header + "\n")
@@ -17,6 +17,3 @@ def generate_teamlist(eventid, header=""):
 		file.write("\n")
 
 	file.close()
-
-generate_teamlist("2017cave")
-generate_teamlist("2017casj")
