@@ -2,6 +2,21 @@ import urllib2
 import json
 import math
 
+def get_event_list(year):
+	"""
+	Method that will return a list of TBAEvents
+	"""
+	url = "http://www.thebluealliance.com/api/v2/events/" + str(year) + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+
+	return_val = []
+	for i in jsonvar:
+		return_val.append(TBAEvent(i))
+
+	return return_val
+
 def get_matches_with_teams(eventKey):
 	"""
 	Method that will return a list of TBAMatch
@@ -88,6 +103,30 @@ class BasicTBAMatch(object):
 
 	def get_blue_alliance(self):
 		return self.blue_alliance
+
+class TBAEvent(object):
+	def __init__(self, event_dict):
+		self.real_data = event_dict
+		self.key = event_dict["key"]
+		self.name = event_dict["name"]
+		self.event_type_string = event_dict["event_type_string"]
+		self.event_district_string = event_dict["event_district_string"]
+		self.week = event_dict["week"]
+
+	def get_key(self):
+		return self.key
+
+	def get_name(self):
+		return self.name
+
+	def get_event_type(self):
+		return self.event_type_string
+
+	def get_event_district_string(self):
+		return self.event_district_string
+
+	def get_week(self):
+		return self.week
 
 class FullTBATeam(object):
 	"""

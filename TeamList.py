@@ -5,16 +5,18 @@
 
 import TBAconnection 
 
-# Receieves data from TBA API
-eventid = "2017cave"
-teams =  TBAconnection.get_teams_at_event(eventid)
+def generate_teamlist(eventid, header=""):
+	teams =  TBAconnection.get_teams_at_event(eventid)
 
-filename = "data/" + eventid + ".txt"
-file = open(filename, "w")
+	filename = "data/teamlists/" + eventid + ".txt"
+	file = open(filename, "w")
 
+	file.write(header + "\n")
+	for team in teams:
+		file.write(str(team.get_number()))
+		file.write("\n")
 
-for team in teams:
-	file.write(str(team.get_number()))
-	file.write("\n")
+	file.close()
 
-file.close()
+generate_teamlist("2017cave")
+generate_teamlist("2017casj")
