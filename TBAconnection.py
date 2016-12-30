@@ -112,6 +112,7 @@ class TBAEvent(object):
 		self.event_type_string = event_dict["event_type_string"]
 		self.event_district_string = event_dict["event_district_string"]
 		self.week = event_dict["week"]
+		self.location = event_dict["location"]
 
 	def get_key(self):
 		return self.key
@@ -122,11 +123,14 @@ class TBAEvent(object):
 	def get_event_type(self):
 		return self.event_type_string
 
-	def get_event_district_string(self):
+	def get_event_district(self):
 		return self.event_district_string
 
 	def get_week(self):
 		return self.week
+
+	def get_location(self):
+		return self.location
 
 class FullTBATeam(object):
 	"""
