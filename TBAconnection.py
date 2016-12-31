@@ -17,6 +17,17 @@ def get_event_list(year):
 
 	return return_val
 
+def get_event(eventKey):
+	"""
+	Method that returns data for one event
+	"""	
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+	
+	return TBAEvent(jsonvar)
+
 def get_matches_with_teams(eventKey):
 	"""
 	Method that will return a list of TBAMatch
@@ -61,6 +72,19 @@ def get_match(matchkey):
 
 	return FullTBAMatch(jsonvar)
 
+def get_event_ranking(eventid):
+	"""
+	Method that will 
+	return ranking data for an event
+	"""
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventid + "/rankings" + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+
+	return TBAQualRanking(jsonvar)
+
+
 
 class Alliance:
 	def __init__(self, team1, team2, team3):
@@ -103,6 +127,16 @@ class BasicTBAMatch(object):
 
 	def get_blue_alliance(self):
 		return self.blue_alliance
+
+class TBAQualRanking(object):
+	def __init__(self, qual_ranking_array):
+		self.qual_ranking_array = qual_ranking_array
+
+	def get_ranking(self):
+		return self.qual_ranking_array
+
+	def get_team_in_rank(self, rank):
+		return self.qual_ranking_array[rank]
 
 class TBAEvent(object):
 	def __init__(self, event_dict):
