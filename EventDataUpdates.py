@@ -202,11 +202,52 @@ def final_data_update(eventid, to_slack = False):
 	if to_slack:
 		EventUpdates.final_update(eventid, data)
 
-eventid = "2016calb"
-initial_data_update(eventid)
-quals_data_update(eventid)
-alliance_selection_data_update(eventid)
-elims_section_data_update(eventid, "quarterfinals")
-elims_section_data_update(eventid, "semifinals")
-elims_section_data_update(eventid, "finals")
+mutlipliers = {"Regional" : 1, "District" : 0.5, "District Championship" : 1.5, "Championship Division" : 1.5}
+def player_points_data_update(eventid, to_slack=True):
+	rosters = []
+	rosters.append(["MemeTeam", "8"])
+	rosters.append(["DreamTeam", "254", "330"])
+	rosters.append(["CleanTeam", "118", "971"])
+
+	fantasy_scores = {}
+
+	event = TBAconnection.get_event(eventid)
+	week = event.get_week()
+	event_type = event.get_event_type()
+
+	output = "data/fantasy"
+
+	fantasy_point_data = open(output + "/" + eventid + "/fantasy_point_data.csv", "r")    
+	with fantasy_point_data:
+		content = fantasy_point_data.read().splitlines()
+	fantasy_point_data.close()
+
+	for team in content:
+		comma_index = team.index(",")
+		fantasy_scores[team[:comma_index]] = team[comma_index+1:]
+
+	f = open("data/fantasy/players/week" + str(week) + "/" + eventid + ".csv", "w")
+
+	for roster in rosters:
+		for team in roster:
+			if team in fantasy_scores:
+				score = fantasy_scores[team]
+				multiplier = mutlipliers[event_type]
+				final_score = float(score) * multiplier
+				f.write(roster[0] + "," + team + "," + score + "," + str(multiplier) + "," + str(final_score) + "\n")
+
+	f.close()
+
+	if to_slack:
+		EventUpdates.players_points_update(eventid, output, week)
+
+
+eventid = "2016casj"
+initial_data_update(eventid, to_slack=True)
+quals_data_update(eventid, to_slack=True)
+alliance_selection_data_update(eventid, to_slack=True)
+elims_section_data_update(eventid, "quarterfinals", to_slack=True)
+elims_section_data_update(eventid, "semifinals", to_slack=True)
+elims_section_data_update(eventid, "finals", to_slack=True)
 final_data_update(eventid, to_slack=True)
+player_points_data_update(eventid, to_slack=True)

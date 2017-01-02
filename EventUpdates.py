@@ -199,7 +199,7 @@ def final_update(eventid, data):
 	attachments = [
 		{
 			"fallback": "Error in sending message.",
-			"color": "#00ff00",
+			"color": "#0000ff",
 			"title_link": "https://www.thebluealliance.com/event/" + eventid,
 			"mrkdwn_in": ["text"],
 			"text": attachment_text,
@@ -209,4 +209,48 @@ def final_update(eventid, data):
 
 	message = "We're all wrapped up at the *" + event_name+ "*!"
 	message += "\nCheck thebluealliance.com/event/" + eventid + " for final results."
+	Slack.send_message(message, attachments)
+
+def players_points_update(eventid, data, week):
+	f = open(data + "/players/week" + str(week) + "/" + eventid + ".csv")
+	with f:
+		content = f.read().splitlines()
+	print content
+
+	info_data = open(data + "/" + eventid +"/information.txt", "r")
+	with info_data:
+		event_name = info_data.read().splitlines()[0]
+	info_data.close()
+
+	attachment_text = ""
+
+	for player_data in content:
+		comma1 = player_data.index(",")
+		comma2 = player_data.index(",", comma1 + 1)
+		comma3 = player_data.index(",", comma2 + 1)
+		comma4 = player_data.index(",", comma3 + 1)
+		
+		player = player_data[:comma1]
+		team = player_data[comma1+1:comma2]
+		score = player_data[comma2+1:comma3]
+		multiplier = player_data[comma3+1:comma4]
+		final_score = player_data[comma4+1:]
+
+		attachment_text += "*" + player + "'s " + team + " has scored " + score + " x " + multiplier + " = " + final_score + " fantasy points!*\n"
+
+	print attachment_text
+
+
+	attachments = [
+		{
+			"fallback": "Error in sending message.",
+			"color": "#00ff00",
+			"title_link": "https://www.thebluealliance.com/event/" + eventid,
+			"mrkdwn_in": ["text"],
+			"text": attachment_text,
+			"footer": "Fantasy FIRST Bot"
+		}
+	]
+
+	message = "*Final Fantasy Point Scores for " + event_name + "*"
 	Slack.send_message(message, attachments, icon=":deankamen:")
