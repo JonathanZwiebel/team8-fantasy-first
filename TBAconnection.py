@@ -6,7 +6,7 @@ def get_event_list(year):
 	"""
 	Method that will return a list of TBAEvents
 	"""
-	url = "http://www.thebluealliance.com/api/v2/events/" + str(year) + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	url = "http://www.thebluealliance.com/api/v2/events/" + str(year) + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
 	jsonvar = json.loads(data)
@@ -21,10 +21,12 @@ def get_event(eventKey):
 	"""
 	Method that returns data for one event
 	"""	
-	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
+	print data
 	jsonvar = json.loads(data)
+	print jsonvar
 	
 	return TBAEvent(jsonvar)
 
@@ -32,7 +34,7 @@ def get_matches_with_teams(eventKey):
 	"""
 	Method that will return a list of TBAMatch
 	"""
-	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + "/matches" + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + "/matches" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
 	jsonvar = json.loads(data)
@@ -48,7 +50,7 @@ def get_teams_at_event(eventKey):
 	"""
 	Method that will return a list of TBATeams
 	"""
-	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + "/teams" + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + "/teams" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
 	jsonvar = json.loads(data)
@@ -65,7 +67,7 @@ def get_match(matchkey):
 
 	Note that the matchKey can be obtained using the key from the BasicTBAMatch object
 	"""
-	url = "http://www.thebluealliance.com/api/v2/match/" + matchkey + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	url = "http://www.thebluealliance.com/api/v2/match/" + matchkey + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
 	jsonvar = json.loads(data)
@@ -77,10 +79,12 @@ def get_event_ranking(eventid):
 	Method that will 
 	return ranking data for an event
 	"""
-	url = "http://www.thebluealliance.com/api/v2/event/" + eventid + "/rankings" + '?X-TBA-App-Id=frc8%3Ascouting%3Apre-alpha'
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventid + "/rankings" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
+	print data
 	jsonvar = json.loads(data)
+	print jsonvar
 
 	return TBAQualRanking(jsonvar)
 
@@ -147,6 +151,7 @@ class TBAEvent(object):
 		self.event_district_string = event_dict["event_district_string"]
 		self.week = event_dict["week"]
 		self.location = event_dict["location"]
+		self.tba_alliances = event_dict["alliances"]
 
 	def get_key(self):
 		return self.key
@@ -165,6 +170,16 @@ class TBAEvent(object):
 
 	def get_location(self):
 		return self.location
+
+	def get_alliances(self):
+		return self.tba_alliances
+
+	def get_alliances_lists(self):
+		alliances_list = []
+		for alliance in self.tba_alliances:
+			alliances_list.append(alliance["picks"])
+		print alliances_list
+		return alliances_list
 
 class FullTBATeam(object):
 	"""
