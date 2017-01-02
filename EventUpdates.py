@@ -1,49 +1,53 @@
+# This class will handle converting Fantasy data into a format that can be relayed to Slack
+# Author: Jonathan Zwiebel
+# Version: 1 January 2017
+
 import Slack
-import TBAconnection
 from FormattedTeam import formatted_team
 
-points_for_rank = [45, 35, 25, 20, 15, 10, 7, 3]
+def initial_update(eventid):
+     message = "Tracking started for " + eventid
+     Slack.send_message(message, attach="")
 
-def quals_update(eventid):
+def quals_update(eventid, data):
+    # TODO: Include rosters in data
     rosters = []
     rosters.append(["MemeTeam", "8"])
     rosters.append(["DreamTeam", "254", "330"])
     rosters.append(["CleanTeam", "118", "971"])
 
-    qual_ranking = TBAconnection.get_event_ranking(eventid)
-    event = TBAconnection.get_event(eventid)
-
     attachment_text = ""
 
-    for i in range(len(qual_ranking.get_ranking()) - 1):
-        team = qual_ranking.get_team_in_rank(i + 1)
+    quals_data = open(data + "/qual_data.csv", "r")    
+    with quals_data:
+        content = quals_data.read().splitlines()
+    quals_data.close()
 
-        points = float(team[2])
+    info_data = open(data +"/information.txt", "r")
+    with info_data:
+        event_name = info_data.read().splitlines()[0]
+    info_data.close()
 
-        if i < 8:
-            points += points_for_rank[i]
+    for i in range(len(content)):
+        comma1 = content[i].index(",")
+        comma2 = content[i].index(",", comma1 + 1)
+        comma3 = content[i].index(",", comma2 + 1)
 
-        dash_index = team[7].index('-')
-        wins = int(team[7][:dash_index])
-        plays = int(team[8])
-
-        if plays - wins == 0:
-            points += 14
-        elif plays - wins <= 2:
-            points += 5
+        number = content[i][:comma1]
+        fantasy_points = content[i][comma1+1:comma2]
+        rp = content[i][comma2+1:comma3]
+        record = content[i][comma3+1:]
 
         attachment_text += str(i + 1) + ". "
-        attachment_text += "Team " + formatted_team(str(team[1]), rosters)
-        attachment_text += " with " + str(team[2]) + " ranking points"
-        attachment_text += " and a record of " + str(team[7])
-        attachment_text += " | " + str(points) + " fantasy points"
+        attachment_text += "Team " + formatted_team(str(number), rosters)
+        attachment_text += " scores " + str(fantasy_points) + " fantasy points"
+        attachment_text += " with " + str(rp) + " RP"
+        attachment_text += " going " + str(record)
         attachment_text += "\n"
-
-
 
     attachments = [
         {
-            "fallback": "Error in sending message.",
+            "fallback": "Error in sending message",
             "color": "#0000ff",
             "title_link": "https://www.thebluealliance.com/event/" + eventid,
             "mrkdwn_in": ["text"],
@@ -52,28 +56,44 @@ def quals_update(eventid):
         }
     ]
 
-    message = "Qualification results are out at the *" + event.get_name()+ "*!"
+    message = "Qualification results are out at the *" + event_name+ "*!"
 
     Slack.send_message(message, attachments)
 
 
-def alliance_selection_update(eventid):
+
+def alliance_selection_update(eventid, data):
     rosters = []
     rosters.append(["MemeTeam", "8"])
     rosters.append(["DreamTeam", "254", "330"])
     rosters.append(["CleanTeam", "118", "971"])
 
-    event = TBAconnection.get_event(eventid)
-    alliances_lists = event.get_alliances_lists()
-
     attachment_text = ""
 
-    for rank in range(len(alliances_lists)):
-        attachment_text += "*Alliance " + str(rank + 1) + "*"
-        for team in alliances_lists[rank]:
-            attachment_text += "  |  " + formatted_team(str(team[3:]), rosters)
+    print(data + "/alliance_selection_data.csv")
+    alliance_selection_data = open(data + "/alliance_selection_data.csv", "r")    
+    with alliance_selection_data:
+        content = alliance_selection_data.read().splitlines()
+    alliance_selection_data.close()
+
+    info_data = open(data +"/information.txt", "r")
+    with info_data:
+        event_name = info_data.read().splitlines()[0]
+    info_data.close()
+
+    # TODO: Find some library that can process csv files
+    for alliance in content:
+        commas = [alliance.index(",")]
+        last_index = commas[0]
+        while alliance.find(",", last_index + 1) != -1:
+            last_index = alliance.index(",", last_index + 1)
+            commas.append(last_index)
+        commas.append(len(alliance))
+
+        attachment_text += "*Alliance " + alliance[:commas[0]] + "*"
+        for i in range(1, len(commas)):
+            attachment_text += "  |  " + formatted_team(str(alliance[commas[i-1]+1:commas[i]][3:]), rosters)
         attachment_text += "\n"
-    print attachment_text
 
     attachments = [
         {
@@ -86,8 +106,6 @@ def alliance_selection_update(eventid):
         }
     ]
 
-    message = "Alliance selection is complete at the *" + event.get_name()+ "*!"
+    message = "Alliance selection is complete at the *" + event_name+ "*!"
     message += " Alliances are listed in pick order with Alliance Captain first."
     Slack.send_message(message, attachments)
-
-quals_update("2016casj")
