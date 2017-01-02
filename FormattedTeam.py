@@ -7,7 +7,6 @@
 def formatted_team(team, rosters):
 	for roster in rosters:
 		for roster_team in roster:
-			print team  + " " + roster_team
 			if team == roster_team:
 				return "_*" + team + " (" + roster[0] + ")*_"
 	return team

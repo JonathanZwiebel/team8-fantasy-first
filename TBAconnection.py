@@ -24,9 +24,7 @@ def get_event(eventKey):
 	url = "http://www.thebluealliance.com/api/v2/event/" + eventKey + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
-	print data
 	jsonvar = json.loads(data)
-	print jsonvar
 	
 	return TBAEvent(jsonvar)
 
@@ -82,9 +80,7 @@ def get_event_ranking(eventid):
 	url = "http://www.thebluealliance.com/api/v2/event/" + eventid + "/rankings" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
-	print data
 	jsonvar = json.loads(data)
-	print jsonvar
 
 	return TBAQualRanking(jsonvar)
 
@@ -178,7 +174,6 @@ class TBAEvent(object):
 		alliances_list = []
 		for alliance in self.tba_alliances:
 			alliances_list.append(alliance["picks"])
-		print alliances_list
 		return alliances_list
 
 class FullTBATeam(object):
