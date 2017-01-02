@@ -1,9 +1,15 @@
 import Slack
 import TBAconnection
+from FormattedTeam import formatted_team
 
 points_for_rank = [45, 35, 25, 20, 15, 10, 7, 3]
 
 def quals_update(eventid):
+    rosters = []
+    rosters.append(["MemeTeam", "8"])
+    rosters.append(["DreamTeam", "254", "330"])
+    rosters.append(["CleanTeam", "118", "971"])
+
     qual_ranking = TBAconnection.get_event_ranking(eventid)
     event = TBAconnection.get_event(eventid)
 
@@ -27,10 +33,10 @@ def quals_update(eventid):
             points += 5
 
         attachment_text += str(i + 1) + ". "
-        attachment_text += "*Team " + str(team[1]) + "*"
+        attachment_text += "Team " + formatted_team(str(team[1]), rosters)
         attachment_text += " with " + str(team[2]) + " ranking points"
         attachment_text += " and a record of " + str(team[7])
-        attachment_text += " | _" + str(points) + " fantasy points_"
+        attachment_text += " | " + str(points) + " fantasy points"
         attachment_text += "\n"
 
 
@@ -52,15 +58,20 @@ def quals_update(eventid):
 
 
 def alliance_selection_update(eventid):
+    rosters = []
+    rosters.append(["MemeTeam", "8"])
+    rosters.append(["DreamTeam", "254", "330"])
+    rosters.append(["CleanTeam", "118", "971"])
+
     event = TBAconnection.get_event(eventid)
     alliances_lists = event.get_alliances_lists()
 
     attachment_text = ""
 
     for rank in range(len(alliances_lists)):
-        attachment_text += "*Alliance " + str(rank + 1) + "*: "
+        attachment_text += "*Alliance " + str(rank + 1) + "*"
         for team in alliances_lists[rank]:
-            attachment_text += team[3:] + "    "
+            attachment_text += "  |  " + formatted_team(str(team[3:]), rosters)
         attachment_text += "\n"
     print attachment_text
 
@@ -79,4 +90,4 @@ def alliance_selection_update(eventid):
     message += " Alliances are listed in pick order with Alliance Captain first."
     Slack.send_message(message, attachments)
 
-alliance_selection_update("2016micmp")
+quals_update("2016casj")
