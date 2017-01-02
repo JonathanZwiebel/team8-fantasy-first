@@ -83,6 +83,59 @@ def alliance_selection_data_update(eventid):
 
 	EventUpdates.alliance_selection_update(eventid, output)
 
-initial_data_update("2016new")
-quals_data_update("2016new")
-alliance_selection_data_update("2016new")
+# Section should be one of: eights, quarterfinals, semifinals, finals
+section_count = {"eights":8, "quarterfinals":4, "semifinals":2, "finals":1}
+section_id = {"eights":"ef", "quarterfinals":"qf", "semifinals":"sf", "finals":"f"}
+def elims_section_data_update(eventid, section):
+	output = "data/fantasy/" + eventid
+	f = open(output + "/" + section + "_data.csv", "w")
+
+	winners = {}
+	losers = {}
+	tiebreak = {}
+	for i in range(section_count[section]):
+		match1 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m1")
+		match1_winner = match1.get_winner()
+		match2 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m2")
+		match2_winner = match2.get_winner()
+		if match1_winner == match2_winner:
+			tiebreak[i] = False
+			if match1_winner == "red":
+				winners[i] = match2.get_red_alliance().get_teams()
+				losers[i] = match2.get_blue_alliance().get_teams()
+			elif match1_winner == "blue":
+				winners[i] = match2.get_blue_alliance().get_teams()
+				losers[i] = match2.get_red_alliance().get_teams()
+			else:
+				print "tied match error"
+		else:
+			tiebreak[i] = True
+			match3 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m3")
+			match3_winner = match3.get_winner()
+			if match3_winner == "red":
+				winners[i] = match3.get_red_alliance().get_teams()
+				losers[i] = match3.get_blue_alliance().get_teams()
+			elif match3_winner == "blue":
+				winners[i] = match3.get_blue_alliance().get_teams()
+				losers[i] = match3.get_red_alliance().get_teams()
+			else:
+				print "tied match error"	
+
+	# Match, Winning alliance (3), Losing alliance (3), Tiebreak
+	for i in range(section_count[section]):
+		f.write(str(i) + ",")
+		for j in range(len(winners[i])):
+			f.write(winners[i][j] + ",")
+		for j in range(len(losers[i])):
+			f.write(losers[i][j] + ",")
+		f.write(str(tiebreak[i]) + "\n")
+	f.close()
+
+	EventUpdates.elims_section_update(eventid, section, output)
+
+initial_data_update("2016casj")
+quals_data_update("2016casj")
+alliance_selection_data_update("2016casj")
+elims_section_data_update("2016casj", "quarterfinals")
+elims_section_data_update("2016casj", "semifinals")
+elims_section_data_update("2016casj", "finals")

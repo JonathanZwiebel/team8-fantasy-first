@@ -111,3 +111,61 @@ def alliance_selection_update(eventid, data):
     message += " Alliances are listed in pick order with Alliance Captain first."
     message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
     Slack.send_message(message, attachments)
+
+def elims_section_update(eventid, section, data):
+    rosters = []
+    rosters.append(["MemeTeam", "8"])
+    rosters.append(["DreamTeam", "254", "330"])
+    rosters.append(["CleanTeam", "118", "971"])
+
+    attachment_text = ""
+
+    elims_section_data = open(data + "/" + section + "_data.csv")    
+    with elims_section_data:
+        content = elims_section_data.read().splitlines()
+    elims_section_data.close()
+    print content
+
+    info_data = open(data +"/information.txt", "r")
+    with info_data:
+        event_name = info_data.read().splitlines()[0]
+    info_data.close()
+
+    
+    # TODO: Find some library that can process csv files
+    for match in content:
+        commas = [match.index(",")]
+        last_index = commas[0]
+        while match.find(",", last_index + 1) != -1:
+            last_index = match.index(",", last_index + 1)
+            commas.append(last_index)
+
+        for i in range(1, 4):
+            attachment_text += formatted_team(str(match[commas[i-1]+1:commas[i]][3:]), rosters) + "  "
+        attachment_text += "beat  "
+        for i in range(4, 7):
+            attachment_text += formatted_team(str(match[commas[i-1]+1:commas[i]][3:]), rosters) + "  "
+        print match[commas[6]+1:]
+        if match[commas[6]+1:] == "True":
+            attachment_text += "in a 2-1 series"
+        else:
+            attachment_text += "in a 2-0 series"
+        attachment_text += "\n"
+
+    print attachment_text
+
+
+    attachments = [
+        {
+            "fallback": "Error in sending message.",
+            "color": "#0000ff",
+            "title_link": "https://www.thebluealliance.com/event/" + eventid,
+            "mrkdwn_in": ["text"],
+            "text": attachment_text,
+            "footer": "Fantasy FIRST Bot"
+        }
+    ]
+
+    message = "Results are out for *" + section + "* at the *" + event_name+ "*!"
+    message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
+    Slack.send_message(message, attachments)
