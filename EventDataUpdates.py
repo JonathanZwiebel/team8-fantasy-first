@@ -6,6 +6,7 @@
 import TBAconnection
 import EventUpdates
 import os
+import operator
 
 points_for_rank = [45, 35, 25, 20, 15, 10, 7, 3]
 
@@ -73,12 +74,17 @@ def alliance_selection_data_update(eventid):
 	output = "data/fantasy/" + eventid
 	f = open(output + "/alliance_selection_data.csv", "w")
 
+	# A team appears here if they were selected onto an alliance
+	alliance_data = open(output + "/on_alliances.txt", "w")
+
 	for rank in range(len(alliances_lists)):
 		f.write(str(rank + 1))
 		for team in alliances_lists[rank]:
 			f.write("," + str(team))
+			alliance_data.write(team[3:] + "\n")
 		f.write("\n")
 
+	alliance_data.close()
 	f.close()
 
 	EventUpdates.alliance_selection_update(eventid, output)
@@ -89,6 +95,8 @@ section_id = {"eights":"ef", "quarterfinals":"qf", "semifinals":"sf", "finals":"
 def elims_section_data_update(eventid, section):
 	output = "data/fantasy/" + eventid
 	f = open(output + "/" + section + "_data.csv", "w")
+
+	elim_scoring = open(output + "/" + section + "_winners.csv", "w")
 
 	winners = {}
 	losers = {}
@@ -126,16 +134,73 @@ def elims_section_data_update(eventid, section):
 		f.write(str(i) + ",")
 		for j in range(len(winners[i])):
 			f.write(winners[i][j] + ",")
+			elim_scoring.write(winners[i][j][3:] + "\n")
 		for j in range(len(losers[i])):
 			f.write(losers[i][j] + ",")
 		f.write(str(tiebreak[i]) + "\n")
 	f.close()
+	elim_scoring.close()
 
 	EventUpdates.elims_section_update(eventid, section, output)
 
-initial_data_update("2016casj")
-quals_data_update("2016casj")
-alliance_selection_data_update("2016casj")
-elims_section_data_update("2016casj", "quarterfinals")
-elims_section_data_update("2016casj", "semifinals")
-elims_section_data_update("2016casj", "finals")
+# To be run at the end of an event
+# Calculates the earned fantasy points of all teams
+def final_data_update(eventid):
+	fantasy_points = {}
+	
+	data = "data/fantasy/" + eventid
+	quals_data = open(data +"/qual_data.csv", "r")
+	on_alliance_data = open(data + "/on_alliances.txt", "r")
+	qf_winners_data = open(data + "/quarterfinals_winners.csv", "r")    
+	sf_winners_data = open(data + "/semifinals_winners.csv", "r")  
+	f_winners_data = open(data + "/finals_winners.csv", "r")  
+	fantasy_point_data = open(data + "/fantasy_point_data.csv", "w")
+
+	with quals_data:
+		quals_content = quals_data.read().splitlines()
+	for team in quals_content:
+		comma1 = team.index(",")
+		comma2 = team.index(",", comma1+1)
+		fantasy_points[team[:comma1]] = float(team[comma1+1:comma2])
+
+	with on_alliance_data:
+		on_alliance_content = on_alliance_data.read().splitlines()
+	for team in on_alliance_content:
+		fantasy_points[team] += 5
+
+	with qf_winners_data:
+		qf_winners_content = qf_winners_data.read().splitlines()
+	for team in qf_winners_content:
+		fantasy_points[team] += 10
+
+	with sf_winners_data:
+		sf_winners_content = sf_winners_data.read().splitlines()
+	for team in sf_winners_content:
+		fantasy_points[team] += 20
+
+	with f_winners_data:
+		f_winners_content = f_winners_data.read().splitlines()
+	for team in f_winners_content:
+		fantasy_points[team] += 40
+
+	sorted_fantasy_points = sorted(fantasy_points.items(), key=operator.itemgetter(1), reverse=True)
+
+	for team in sorted_fantasy_points:
+		fantasy_point_data.write(str(team[0]) + "," + str(team[1]) + "\n")
+
+	quals_data.close()
+	on_alliance_data.close()
+	qf_winners_data.close()
+	sf_winners_data.close()
+	f_winners_data.close()
+	fantasy_point_data.close()
+
+	EventUpdates.final_update(eventid, data)
+
+#initial_data_update("2016casj")
+#quals_data_update("2016casj")
+#alliance_selection_data_update("2016casj")
+#elims_section_data_update("2016casj", "quarterfinals")
+#elims_section_data_update("2016casj", "semifinals")
+#elims_section_data_update("2016casj", "finals")
+final_data_update("2016casj")
