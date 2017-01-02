@@ -57,6 +57,7 @@ def quals_update(eventid, data):
     ]
 
     message = "Qualification results are out at the *" + event_name+ "*!"
+    message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
 
     Slack.send_message(message, attachments)
 
@@ -108,4 +109,5 @@ def alliance_selection_update(eventid, data):
 
     message = "Alliance selection is complete at the *" + event_name+ "*!"
     message += " Alliances are listed in pick order with Alliance Captain first."
+    message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
     Slack.send_message(message, attachments)
