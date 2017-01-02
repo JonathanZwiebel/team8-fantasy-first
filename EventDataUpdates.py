@@ -13,12 +13,13 @@ points_for_rank = [45, 35, 25, 20, 15, 10, 7, 3]
 # Gets general data from an event such as name, location, and teams. Creates a folder
 # for the event.
 # To be run before an event begins
-def initial_data_update(eventid):
+def initial_data_update(eventid, to_slack = True):
 	event = TBAconnection.get_event(eventid)
 
 	output = "data/fantasy/" + eventid
 	if not os.path.exists(output):
-		EventUpdates.initial_update(eventid)
+		if to_slack:
+			EventUpdates.initial_update(eventid)
 		os.makedirs(output)
 
 	""" 
@@ -37,7 +38,7 @@ def initial_data_update(eventid):
 # Gets qualification data from an event, calculated fantasy points, and places 
 # a csv inside that event's data folder matching teams to data including fantasy points
 # To be run at the end of qualification matches
-def quals_data_update(eventid):
+def quals_data_update(eventid, to_slack = False):
 	qual_ranking = TBAconnection.get_event_ranking(eventid)
 
 	output = "data/fantasy/" + eventid
@@ -65,9 +66,10 @@ def quals_data_update(eventid):
 
 	f.close()
 
-	EventUpdates.quals_update(eventid, output)
+	if to_slack:
+		EventUpdates.quals_update(eventid, output)
 
-def alliance_selection_data_update(eventid):
+def alliance_selection_data_update(eventid, to_slack = False):
 	event = TBAconnection.get_event(eventid)
 	alliances_lists = event.get_alliances_lists()
 
@@ -87,12 +89,13 @@ def alliance_selection_data_update(eventid):
 	alliance_data.close()
 	f.close()
 
-	EventUpdates.alliance_selection_update(eventid, output)
+	if to_slack:
+		EventUpdates.alliance_selection_update(eventid, output)
 
 # Section should be one of: eights, quarterfinals, semifinals, finals
 section_count = {"eights":8, "quarterfinals":4, "semifinals":2, "finals":1}
 section_id = {"eights":"ef", "quarterfinals":"qf", "semifinals":"sf", "finals":"f"}
-def elims_section_data_update(eventid, section):
+def elims_section_data_update(eventid, section, to_slack = False):
 	output = "data/fantasy/" + eventid
 	f = open(output + "/" + section + "_data.csv", "w")
 
@@ -141,11 +144,12 @@ def elims_section_data_update(eventid, section):
 	f.close()
 	elim_scoring.close()
 
-	EventUpdates.elims_section_update(eventid, section, output)
+	if to_slack:
+		EventUpdates.elims_section_update(eventid, section, output)
 
 # To be run at the end of an event
 # Calculates the earned fantasy points of all teams
-def final_data_update(eventid):
+def final_data_update(eventid, to_slack = False):
 	fantasy_points = {}
 	
 	data = "data/fantasy/" + eventid
@@ -195,12 +199,14 @@ def final_data_update(eventid):
 	f_winners_data.close()
 	fantasy_point_data.close()
 
-	EventUpdates.final_update(eventid, data)
+	if to_slack:
+		EventUpdates.final_update(eventid, data)
 
-#initial_data_update("2016casj")
-#quals_data_update("2016casj")
-#alliance_selection_data_update("2016casj")
-#elims_section_data_update("2016casj", "quarterfinals")
-#elims_section_data_update("2016casj", "semifinals")
-#elims_section_data_update("2016casj", "finals")
-final_data_update("2016casj")
+eventid = "2016calb"
+initial_data_update(eventid)
+quals_data_update(eventid)
+alliance_selection_data_update(eventid)
+elims_section_data_update(eventid, "quarterfinals")
+elims_section_data_update(eventid, "semifinals")
+elims_section_data_update(eventid, "finals")
+final_data_update(eventid, to_slack=True)
