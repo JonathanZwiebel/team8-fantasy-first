@@ -39,7 +39,7 @@ def quals_update(eventid):
         {
             "fallback": "Error in sending message.",
             "color": "#0000ff",
-            "title_link": "https://www.thebluealliance.com/event/2016casj",
+            "title_link": "https://www.thebluealliance.com/event/" + eventid,
             "mrkdwn_in": ["text"],
             "text": attachment_text,
             "footer": "Fantasy FIRST Bot"
@@ -51,5 +51,32 @@ def quals_update(eventid):
     Slack.send_message(message, attachments)
 
 
+def alliance_selection_update(eventid):
+    event = TBAconnection.get_event(eventid)
+    alliances_lists = event.get_alliances_lists()
 
-quals_update("2016cur")
+    attachment_text = ""
+
+    for rank in range(len(alliances_lists)):
+        attachment_text += "*Alliance " + str(rank + 1) + "*: "
+        for team in alliances_lists[rank]:
+            attachment_text += team[3:] + "    "
+        attachment_text += "\n"
+    print attachment_text
+
+    attachments = [
+        {
+            "fallback": "Error in sending message.",
+            "color": "#0000ff",
+            "title_link": "https://www.thebluealliance.com/event/" + eventid,
+            "mrkdwn_in": ["text"],
+            "text": attachment_text,
+            "footer": "Fantasy FIRST Bot"
+        }
+    ]
+
+    message = "Alliance selection is complete at the *" + event.get_name()+ "*!"
+    message += " Alliances are listed in pick order with Alliance Captain first."
+    Slack.send_message(message, attachments)
+
+alliance_selection_update("2016micmp")
