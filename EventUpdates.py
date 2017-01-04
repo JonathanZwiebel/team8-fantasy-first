@@ -52,7 +52,6 @@ def quals_update(eventid, data):
 			"title_link": "https://www.thebluealliance.com/event/" + eventid,
 			"mrkdwn_in": ["text"],
 			"text": attachment_text,
-			"footer": "Fantasy FIRST Bot"
 		}
 	]
 
@@ -103,7 +102,6 @@ def alliance_selection_update(eventid, data):
 			"title_link": "https://www.thebluealliance.com/event/" + eventid,
 			"mrkdwn_in": ["text"],
 			"text": attachment_text,
-			"footer": "Fantasy FIRST Bot"
 		}
 	]
 
@@ -162,7 +160,6 @@ def elims_section_update(eventid, section, data):
 			"title_link": "https://www.thebluealliance.com/event/" + eventid,
 			"mrkdwn_in": ["text"],
 			"text": attachment_text,
-			"footer": "Fantasy FIRST Bot"
 		}
 	]
 
@@ -203,7 +200,6 @@ def final_update(eventid, data):
 			"title_link": "https://www.thebluealliance.com/event/" + eventid,
 			"mrkdwn_in": ["text"],
 			"text": attachment_text,
-			"footer": "Fantasy FIRST Bot"
 		}
 	]
 
@@ -248,7 +244,6 @@ def players_points_update(eventid, data, week):
 			"title_link": "https://www.thebluealliance.com/event/" + eventid,
 			"mrkdwn_in": ["text"],
 			"text": attachment_text,
-			"footer": "Fantasy FIRST Bot"
 		}
 	]
 
