@@ -84,7 +84,30 @@ def get_event_ranking(eventid):
 
 	return TBAQualRanking(jsonvar)
 
+def get_event_awards(eventid):
+	"""
+	Method that will return an object that lists event Chairman's, Winners, and Finalists
+	"""
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventid + "/awards" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
 
+	return EventAwards(jsonvar)
+	print jsonvar
+
+award_numbers = {0 : "Chairman's", 1 : "Winners", 2 : "Finalists"}
+class EventAwards:
+	# Using numbers instead of award names because names change depending on event type
+	award_winners = {}
+	def __init__(self, event_awards):
+		self.event_awards = event_awards
+		for award in event_awards:
+			award_number = award["award_type"]
+			if award_numbers.has_key(award_number):
+				award = award_numbers[award_number]
+				print award
+			
 
 class Alliance:
 	def __init__(self, team1, team2, team3):
@@ -148,6 +171,7 @@ class TBAEvent(object):
 		self.week = event_dict["week"]
 		self.location = event_dict["location"]
 		self.tba_alliances = event_dict["alliances"]
+		self.official = event_dict["official"]
 
 	def get_key(self):
 		return self.key
@@ -166,6 +190,9 @@ class TBAEvent(object):
 
 	def get_location(self):
 		return self.location
+
+	def is_official(self):
+		return self.official
 
 	def get_alliances(self):
 		return self.tba_alliances
