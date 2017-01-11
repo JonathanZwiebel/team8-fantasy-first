@@ -13,4 +13,4 @@ def generate_teamlists(year):
 	for event in events:
 		TeamList.generate_teamlist(event.get_key(), str(event.get_event_type()), event.get_name())
 
-generate_teamlists(2017)
+generate_teamlists(2016)

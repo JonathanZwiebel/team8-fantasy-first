@@ -286,6 +286,10 @@ class FullTBAMatch(object):
 		self.key = match_dict["key"].encode('ascii', 'ignore')
 		self.level = match_dict["comp_level"]
 		self.match_num = match_dict["match_number"]
+		if str(match_dict["score_breakdown"]) == "None":
+			self.bad = True
+			return 
+		self.bad = False
 		self.blue_alliance_performance = match_dict["score_breakdown"]["blue"]
 		self.red_alliance_performance = match_dict["score_breakdown"]["red"]
 		self.red = Alliance(match_dict["alliances"]["red"]["teams"][0],
@@ -295,6 +299,9 @@ class FullTBAMatch(object):
 		self.blue = Alliance(match_dict["alliances"]["blue"]["teams"][0],
 							match_dict["alliances"]["blue"]["teams"][1],
 							match_dict["alliances"]["blue"]["teams"][2])
+
+	def get_good(self):
+		return not self.bad
 
 	def get_key_as_displayable(self):
 		display = self.key.split("_")[1]
@@ -328,6 +335,24 @@ class FullTBAMatch(object):
 
 	def get_red_teleop_boulders_high(self):
 		return self.red_alliance_performance["teleopBouldersHigh"]
+
+	def get_blue_teleop_boulders_low(self):
+		return self.blue_alliance_performance["teleopBouldersLow"]
+
+	def get_red_teleop_boulders_low(self):
+		return self.red_alliance_performance["teleopBouldersLow"]
+
+	def get_blue_auto_boulders_high(self):
+		return self.blue_alliance_performance["autoBouldersHigh"]
+
+	def get_red_auto_boulders_high(self):
+		return self.red_alliance_performance["autoBouldersHigh"]
+
+	def get_blue_teleop_points(self):
+		return self.blue_alliance_performance["teleopPoints"]
+
+	def get_red_teleop_points(self):
+		return self.red_alliance_performance["teleopPoints"]
 
 	def get_blue_auto_points(self):
 		return self.blue_alliance_performance["autoPoints"]
@@ -387,13 +412,11 @@ class FullTBAMatch(object):
 		total += self.red_alliance_performance["position5crossings"]
 		return total
 
-	def get_blue_tower_damage(self):
-		#return 8 - self.red_alliance_performance["towerEndStrength"]
-		return -1
+	def get_blue_tower_strength(self):
+		return self.red_alliance_performance["towerEndStrength"]
 
-	def get_red_tower_damage(self):
-		#return 8 - self.blue_alliance_performance["towerEndStrength"]
-		return -1
+	def get_red_tower_strength(self):
+		return self.blue_alliance_performance["towerEndStrength"]
 
 	def get_blue_scale_points(self):
 		return self.blue_alliance_performance["teleopScalePoints"]
