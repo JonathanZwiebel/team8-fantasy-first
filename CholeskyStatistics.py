@@ -15,7 +15,7 @@ from scipy import linalg
 import math
 
 # Receieves data from TBA API
-eventid = "2016casj"
+eventid = "2016hop"
 matches = TBAconnection.get_matches_with_teams(eventid)
 teams =  TBAconnection.get_teams_at_event(eventid)
 
@@ -25,7 +25,7 @@ for team in teams:
 	indexed_teams.append(str(team.get_key()))
 
 # Fills coefficient and resultant vector with zeroes
-statistics = ["Total Points", "High Goals", "Auto Points", "Ranking Points", "Breach Achieved", "Defense Crossings", "Tower Damage", "Scale Points", "Winning Margin"]
+statistics = ["Total Points", "High Goal", "Auto Points", "Ranking Points", "Breach Achieved", "Defense Crossings", "Tower Damage", "Scale Points", "Winning Margin"]
 A = sp.zeros((len(teams),len(teams)),dtype=int)
 B = sp.zeros((len(teams),len(statistics)),dtype=int)
 
@@ -54,8 +54,8 @@ for match in matches:
 			B[indexed_teams.index(red_teams[k])][4] += match.get_red_breach()
 			B[indexed_teams.index(blue_teams[k])][5] += match.get_blue_crossings()
 			B[indexed_teams.index(red_teams[k])][5] += match.get_red_crossings()
-			B[indexed_teams.index(blue_teams[k])][6] += match.get_blue_tower_damage()
-			B[indexed_teams.index(red_teams[k])][6] += match.get_red_tower_damage()
+			B[indexed_teams.index(blue_teams[k])][6] += match.get_blue_tower_strength()
+			B[indexed_teams.index(red_teams[k])][6] += match.get_red_tower_strength()
 			B[indexed_teams.index(blue_teams[k])][7] += match.get_blue_scale_points()
 			B[indexed_teams.index(red_teams[k])][7] += match.get_red_scale_points()
 			B[indexed_teams.index(blue_teams[k])][8] += match.get_blue_winning_margin()
@@ -104,6 +104,6 @@ result = sp.flipud(result)
 print "Teams by CCWMs"
 print result
 
-sp.savetxt("Results.csv", sp.asarray(result), delimiter=",")
+sp.savetxt("data/cholesky/resultshop.csv", sp.asarray(result), delimiter=",")
 
 # print "Condition Number: {}".format(cond)
