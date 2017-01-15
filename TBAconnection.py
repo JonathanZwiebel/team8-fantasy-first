@@ -28,6 +28,18 @@ def get_event(eventKey):
 	
 	return TBAEvent(jsonvar)
 
+
+def get_team(teamNumber):
+	"""
+	Method that returns data for one event
+	"""	
+	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + teamNumber + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+	
+	return FullTBATeam(jsonvar)
+
 def get_matches_with_teams(eventKey):
 	"""
 	Method that will return a list of TBAMatch
@@ -108,7 +120,6 @@ class EventAwards:
 				award = award_numbers[award_number]
 				print award
 			
-
 class Alliance:
 	def __init__(self, team1, team2, team3):
 		self.teams = [team1, team2, team3]
@@ -223,6 +234,10 @@ class FullTBATeam(object):
 		self.key = team_dict["key"]
 		self.rookie_year = team_dict["rookie_year"]
 		self.nickname = team_dict["nickname"]
+		self.region = team_dict["region"]
+
+	def get_region(self):
+		return self.region
 
 	def get_number(self):
 		return self.team_number
