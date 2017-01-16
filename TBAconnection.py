@@ -84,6 +84,14 @@ def get_match(matchkey):
 
 	return FullTBAMatch(jsonvar)
 
+def get_statistics(eventid):
+	url = "http://www.thebluealliance.com/api/v2/event/" + eventid + "/stats" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+
+	return jsonvar
+
 def get_event_ranking(eventid):
 	"""
 	Method that will 
@@ -107,6 +115,16 @@ def get_event_awards(eventid):
 
 	return EventAwards(jsonvar)
 	print jsonvar
+
+
+def get_distrct_history(team_number):
+	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + team_number + "/history/districts" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+
+	return jsonvar
+
 
 award_numbers = {0 : "Chairman's", 1 : "Winners", 2 : "Finalists"}
 class EventAwards:
@@ -235,6 +253,7 @@ class FullTBATeam(object):
 		self.rookie_year = team_dict["rookie_year"]
 		self.nickname = team_dict["nickname"]
 		self.region = team_dict["region"]
+		self.locality = team_dict["locality"]
 
 	def get_region(self):
 		return self.region
@@ -250,6 +269,9 @@ class FullTBATeam(object):
 
 	def get_rookie_year(self):
 		return self.rookie_year
+
+	def get_locality(self):
+		return self.locality
 
 class FullTBAMatch(object):
 
