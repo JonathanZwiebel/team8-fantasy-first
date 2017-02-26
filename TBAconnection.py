@@ -33,7 +33,7 @@ def get_team(teamNumber):
 	"""
 	Method that returns data for one event
 	"""	
-	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + teamNumber + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + str(teamNumber) + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
 	jsonvar = json.loads(data)
@@ -118,13 +118,23 @@ def get_event_awards(eventid):
 
 
 def get_distrct_history(team_number):
-	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + team_number + "/history/districts" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + str(team_number) + "/history/districts" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
 	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
 	data = urllib2.urlopen(request).read().decode('utf-8')
 	jsonvar = json.loads(data)
 
 	return jsonvar
 
+def get_team_events(team_number, year):
+	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + str(team_number) + "/" + str(year) + "/events" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Atesting'
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+
+	return_val = []
+	for i in jsonvar:
+		return_val.append(TBAEvent(i))
+	return return_val
 
 award_numbers = {0 : "Chairman's", 1 : "Winners", 2 : "Finalists"}
 class EventAwards:
@@ -215,7 +225,16 @@ class TBAEvent(object):
 		return self.event_district_string
 
 	def get_week(self):
-		return self.week
+		if self.key == "2017cmptx":
+			return 8
+
+		if self.key == "2017cmpmo":
+			return 9
+
+		if not isinstance(self.week, int):
+			return -1
+
+		return int(self.week) + 1
 
 	def get_location(self):
 		return self.location
@@ -336,6 +355,9 @@ class FullTBAMatch(object):
 		self.blue = Alliance(match_dict["alliances"]["blue"]["teams"][0],
 							match_dict["alliances"]["blue"]["teams"][1],
 							match_dict["alliances"]["blue"]["teams"][2])
+
+	def get_key(self):
+		return self.key
 
 	def get_good(self):
 		return not self.bad
