@@ -4,17 +4,27 @@
 
 import Slack
 from FormattedTeam import formatted_team
+from FormattedTeam import on_roster
+import GenerateRosterLists
+
+def get_default_attachement(eventid, attachment_text):
+		return [
+			{
+				"fallback": "Error in sending message",
+				"color": "#0000ff",
+				"title_link": "https://www.thebluealliance.com/event/" + eventid,
+				"mrkdwn_in": ["text"],
+				"text": attachment_text,
+			}
+		]
+
 
 def initial_update(eventid):
 	 message = "Tracking started for " + eventid
 	 Slack.send_message(message, attach="")
 
 def quals_update(eventid, data):
-	# TODO: Include rosters in data
-	rosters = []
-	rosters.append(["MemeTeam", "8"])
-	rosters.append(["DreamTeam", "254", "330"])
-	rosters.append(["CleanTeam", "118", "971"])
+	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
 
 	attachment_text = ""
 
@@ -38,22 +48,16 @@ def quals_update(eventid, data):
 		rp = content[i][comma2+1:comma3]
 		record = content[i][comma3+1:]
 
-		attachment_text += str(i + 1) + ". "
-		attachment_text += "Team " + formatted_team(str(number), rosters)
-		attachment_text += " scores " + str(fantasy_points) + " fantasy points"
-		attachment_text += " with " + str(rp) + " RP"
-		attachment_text += " going " + str(record)
-		attachment_text += "\n"
+		if(on_roster(str(number), rosters)):
+			attachment_text += "Team " + formatted_team(str(number), rosters)
+			attachment_text += " scores *" + str(fantasy_points) + "* fantasy points"
+			attachment_text += " with " + str(rp) + " RP"
+			attachment_text += " going " + str(record)
+			attachment_text += " and ends up ranked in the #" + str(i + 1) + " spot"
+			attachment_text += "\n"
 
-	attachments = [
-		{
-			"fallback": "Error in sending message",
-			"color": "#0000ff",
-			"title_link": "https://www.thebluealliance.com/event/" + eventid,
-			"mrkdwn_in": ["text"],
-			"text": attachment_text,
-		}
-	]
+	print attachment_text
+	attachments = get_default_attachement(eventid, attachment_text)
 
 	message = "Qualification results are out at the *" + event_name+ "*!"
 	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
@@ -63,11 +67,7 @@ def quals_update(eventid, data):
 
 
 def alliance_selection_update(eventid, data):
-	rosters = []
-	rosters.append(["MemeTeam", "8"])
-	rosters.append(["DreamTeam", "254", "330"])
-	rosters.append(["CleanTeam", "118", "971"])
-
+	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
 	attachment_text = ""
 
 	print(data + "/alliance_selection_data.csv")
@@ -95,15 +95,8 @@ def alliance_selection_update(eventid, data):
 			attachment_text += "  |  " + formatted_team(str(alliance[commas[i-1]+1:commas[i]][3:]), rosters)
 		attachment_text += "\n"
 
-	attachments = [
-		{
-			"fallback": "Error in sending message.",
-			"color": "#0000ff",
-			"title_link": "https://www.thebluealliance.com/event/" + eventid,
-			"mrkdwn_in": ["text"],
-			"text": attachment_text,
-		}
-	]
+	print attachment_text
+	attachments = get_default_attachement(eventid, attachment_text)
 
 	message = "Alliance selection is complete at the *" + event_name+ "*!"
 	message += " Alliances are listed in pick order with Alliance Captain first."
@@ -111,18 +104,13 @@ def alliance_selection_update(eventid, data):
 	Slack.send_message(message, attachments)
 
 def elims_section_update(eventid, section, data):
-	rosters = []
-	rosters.append(["MemeTeam", "8"])
-	rosters.append(["DreamTeam", "254", "330"])
-	rosters.append(["CleanTeam", "118", "971"])
-
+	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
 	attachment_text = ""
 
 	elims_section_data = open(data + "/" + section + "_data.csv")    
 	with elims_section_data:
 		content = elims_section_data.read().splitlines()
 	elims_section_data.close()
-	print content
 
 	info_data = open(data +"/information.txt", "r")
 	with info_data:
@@ -143,7 +131,6 @@ def elims_section_update(eventid, section, data):
 		attachment_text += "beat  "
 		for i in range(4, 7):
 			attachment_text += formatted_team(str(match[commas[i-1]+1:commas[i]][3:]), rosters) + "  "
-		print match[commas[6]+1:]
 		if match[commas[6]+1:] == "True":
 			attachment_text += "in a 2-1 series"
 		else:
@@ -152,27 +139,14 @@ def elims_section_update(eventid, section, data):
 
 	print attachment_text
 
-
-	attachments = [
-		{
-			"fallback": "Error in sending message.",
-			"color": "#0000ff",
-			"title_link": "https://www.thebluealliance.com/event/" + eventid,
-			"mrkdwn_in": ["text"],
-			"text": attachment_text,
-		}
-	]
+	attachments = get_default_attachement(eventid, attachment_text)
 
 	message = "Results are out for *" + section + "* at the *" + event_name+ "*!"
 	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
 	Slack.send_message(message, attachments)
 
 def final_update(eventid, data):
-	rosters = []
-	rosters.append(["MemeTeam", "8"])
-	rosters.append(["DreamTeam", "254", "330"])
-	rosters.append(["CleanTeam", "118", "971"])
-
+	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
 	attachment_text = ""
 
 	fantasy_point_data = open(data + "/fantasy_point_data.csv")    
@@ -187,21 +161,13 @@ def final_update(eventid, data):
 
 	for team in content:
 		comma_index = team.index(",")
-		attachment_text += "Team " + formatted_team(team[:comma_index], rosters)
-		attachment_text += " scored " + team[comma_index+1:] + " fantasy points\n"
+		if(on_roster(team[:comma_index], rosters)):
+			attachment_text += "Team " + formatted_team(team[:comma_index], rosters)
+			attachment_text += " scored " + team[comma_index+1:] + " fantasy points\n"
 
 	print attachment_text
 
-
-	attachments = [
-		{
-			"fallback": "Error in sending message.",
-			"color": "#0000ff",
-			"title_link": "https://www.thebluealliance.com/event/" + eventid,
-			"mrkdwn_in": ["text"],
-			"text": attachment_text,
-		}
-	]
+	attachments = get_default_attachement(eventid, attachment_text)
 
 	message = "We're all wrapped up at the *" + event_name+ "*!"
 	message += "\nCheck thebluealliance.com/event/" + eventid + " for final results."
@@ -211,7 +177,6 @@ def players_points_update(eventid, data, week):
 	f = open(data + "/players/week" + str(week) + "/" + eventid + ".csv")
 	with f:
 		content = f.read().splitlines()
-	print content
 
 	info_data = open(data + "/" + eventid +"/information.txt", "r")
 	with info_data:
@@ -236,16 +201,7 @@ def players_points_update(eventid, data, week):
 
 	print attachment_text
 
-
-	attachments = [
-		{
-			"fallback": "Error in sending message.",
-			"color": "#00ff00",
-			"title_link": "https://www.thebluealliance.com/event/" + eventid,
-			"mrkdwn_in": ["text"],
-			"text": attachment_text,
-		}
-	]
+	attachments = get_default_attachement(eventid, attachment_text)
 
 	message = "*Final Fantasy Point Scores for " + event_name + "*"
 	Slack.send_message(message, attachments, icon=":deankamen:")

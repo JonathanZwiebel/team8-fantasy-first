@@ -9,17 +9,10 @@ def generate(location, date):
 	rosters = {}
 
 	for roster_str in rosters_str:
-		teams = []
-		counted = 0
-		last_comma_index = roster_str.index(",")
-		name = roster_str[:last_comma_index]
+		content = roster_str.split(',')
+		name = content[0]
+		teams = content[1:]
 
-		while(counted < teams_per_roster - 1):
-			next_comma_index = roster_str.index(",", last_comma_index + 1)
-			teams.append(int(roster_str[last_comma_index + 1:next_comma_index]))
-			last_comma_index = next_comma_index
-			counted = counted + 1
-		teams.append(int(roster_str[last_comma_index + 1:]))
 		rosters[name] = teams
 
 	for roster in rosters:
@@ -52,4 +45,4 @@ def generate(location, date):
 
 
 
-generate("C:/users/user/git/tba-stats/data", "feb25")
+generate("C:/users/user/git/tba-stats/data", "mar7")

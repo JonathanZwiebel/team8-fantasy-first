@@ -7,6 +7,7 @@ import TBAconnection
 import EventUpdates
 import os
 import operator
+import GenerateRosterLists
 
 points_for_rank = [45, 35, 25, 20, 15, 10, 7, 3]
 
@@ -46,26 +47,30 @@ def quals_data_update(eventid, to_slack = False):
 
 	for i in range(len(qual_ranking.get_ranking()) - 1):
 		team = qual_ranking.get_team_in_rank(i + 1)
+		dash_index = team[8].index('-')
+		wins = int(team[8][:dash_index])
+		plays = int(team[9])
 
-		points = float(team[2])
+		rp = round((plays) * float(team[2]))
+		rp_points = 1.5 * rp
 
 		if i < 8:
-			points += points_for_rank[i]
-
-		dash_index = team[7].index('-')
-		wins = int(team[7][:dash_index])
-		plays = int(team[8])
+			seed_points = points_for_rank[i]
+		else:
+			seed_points = 0
 
 		if plays - wins == 0:
-			points += 14
+			record_points = 11
 		elif plays - wins <= 2:
-			points += 5
+			record_points = 5
+		else:
+			record_points = 0
+
+		points = rp_points + seed_points + record_points
 
 		# Team, Fantasy Points, RP, Record
-		f.write(str(team[1]) + "," + str(points) + "," + str(team[2]) + "," + str(team[7]) + "\n")
-
+		f.write(str(team[1]) + "," + str(points) + "," + str(rp) + "," + str(team[8]) + "\n")
 	f.close()
-
 	if to_slack:
 		EventUpdates.quals_update(eventid, output)
 
@@ -75,17 +80,18 @@ def alliance_selection_data_update(eventid, to_slack = False):
 
 	output = "data/fantasy/" + eventid
 	f = open(output + "/alliance_selection_data.csv", "w")
-
-	# A team appears here if they were selected onto an alliance
 	alliance_data = open(output + "/on_alliances.txt", "w")
+	captains_data = open(output + "/alliance_captains.txt", "w")
 
 	for rank in range(len(alliances_lists)):
 		f.write(str(rank + 1))
+		captains_data.write(alliances_lists[rank][0][3:] + "\n")
 		for team in alliances_lists[rank]:
 			f.write("," + str(team))
 			alliance_data.write(team[3:] + "\n")
 		f.write("\n")
 
+	captains_data.close()
 	alliance_data.close()
 	f.close()
 
@@ -97,13 +103,14 @@ section_count = {"eights":8, "quarterfinals":4, "semifinals":2, "finals":1}
 section_id = {"eights":"ef", "quarterfinals":"qf", "semifinals":"sf", "finals":"f"}
 def elims_section_data_update(eventid, section, to_slack = False):
 	output = "data/fantasy/" + eventid
-	f = open(output + "/" + section + "_data.csv", "w")
 
+	f = open(output + "/" + section + "_data.csv", "w")
 	elim_scoring = open(output + "/" + section + "_winners.csv", "w")
 
 	winners = {}
 	losers = {}
 	tiebreak = {}
+	eliminated = open(output + "/" + section + "eliminated.csv", "w")
 	for i in range(section_count[section]):
 		match1 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m1")
 		match1_winner = match1.get_winner()
@@ -131,6 +138,9 @@ def elims_section_data_update(eventid, section, to_slack = False):
 				losers[i] = match3.get_red_alliance().get_teams()
 			else:
 				print "tied match error"	
+			for loser in losers[i]:
+				eliminated.write(str(loser[3:]) + "\n")
+	eliminated.close()
 
 	# Match, Winning alliance (3), Losing alliance (3), Tiebreak
 	for i in range(section_count[section]):
@@ -151,13 +161,18 @@ def elims_section_data_update(eventid, section, to_slack = False):
 # Calculates the earned fantasy points of all teams
 def final_data_update(eventid, to_slack = False):
 	fantasy_points = {}
+	elim_wins = {}
 	
 	data = "data/fantasy/" + eventid
 	quals_data = open(data +"/qual_data.csv", "r")
 	on_alliance_data = open(data + "/on_alliances.txt", "r")
+	alliance_captain_data = open(data + "/alliance_captains.txt", "r")
 	qf_winners_data = open(data + "/quarterfinals_winners.csv", "r")    
 	sf_winners_data = open(data + "/semifinals_winners.csv", "r")  
-	f_winners_data = open(data + "/finals_winners.csv", "r")  
+	f_winners_data = open(data + "/finals_winners.csv", "r")
+	qf_eliminated_data = open(data + "/quarterfinalseliminated.csv", "r")    
+	sf_eliminated_data = open(data + "/semifinalseliminated.csv", "r")  
+	f_eliminated_data = open(data + "/finalseliminated.csv", "r")
 	fantasy_point_data = open(data + "/fantasy_point_data.csv", "w")
 
 	with quals_data:
@@ -171,21 +186,50 @@ def final_data_update(eventid, to_slack = False):
 		on_alliance_content = on_alliance_data.read().splitlines()
 	for team in on_alliance_content:
 		fantasy_points[team] += 5
+		elim_wins[team] = 0
+
 
 	with qf_winners_data:
 		qf_winners_content = qf_winners_data.read().splitlines()
 	for team in qf_winners_content:
 		fantasy_points[team] += 10
+		elim_wins[team] = 2
 
 	with sf_winners_data:
 		sf_winners_content = sf_winners_data.read().splitlines()
 	for team in sf_winners_content:
 		fantasy_points[team] += 20
+		elim_wins[team] = 4
 
 	with f_winners_data:
 		f_winners_content = f_winners_data.read().splitlines()
 	for team in f_winners_content:
 		fantasy_points[team] += 40
+		elim_wins[team] = 6
+
+
+	with qf_eliminated_data:
+		qf_eliminated_content = qf_eliminated_data.read().splitlines()
+	for team in qf_eliminated_content:
+		fantasy_points[team] += 5
+		elim_wins[team] = 1
+
+	with sf_eliminated_data:
+		sf_eliminated_content = sf_eliminated_data.read().splitlines()
+	for team in sf_eliminated_content:
+		fantasy_points[team] += 5
+		elim_wins[team] = 3
+
+	with f_eliminated_data:
+		f_eliminated_content = f_eliminated_data.read().splitlines()
+	for team in f_eliminated_content:
+		fantasy_points[team] += 5
+		elim_wins[team] = 5
+
+	with alliance_captain_data:
+		alliance_captain_content = alliance_captain_data.read().splitlines()
+	for team in alliance_captain_content:
+		fantasy_points[team] += 2 * elim_wins[team]
 
 	sorted_fantasy_points = sorted(fantasy_points.items(), key=operator.itemgetter(1), reverse=True)
 
@@ -204,11 +248,7 @@ def final_data_update(eventid, to_slack = False):
 
 mutlipliers = {"Regional" : 1, "District" : 0.5, "District Championship" : 1.5, "Championship Division" : 1.5}
 def player_points_data_update(eventid, to_slack=True):
-	rosters = []
-	rosters.append(["MemeTeam", "8"])
-	rosters.append(["DreamTeam", "254", "330"])
-	rosters.append(["CleanTeam", "118", "971"])
-
+	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
 	fantasy_scores = {}
 
 	event = TBAconnection.get_event(eventid)
@@ -242,7 +282,7 @@ def player_points_data_update(eventid, to_slack=True):
 		EventUpdates.players_points_update(eventid, output, week)
 
 
-eventid = "2016casj"
+eventid = "2017isde1"
 initial_data_update(eventid, to_slack=True)
 quals_data_update(eventid, to_slack=True)
 alliance_selection_data_update(eventid, to_slack=True)

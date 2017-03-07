@@ -21,7 +21,7 @@ def get_2016_data():
 	end_tower_strength = {}
 
 	for event in events:
-		if event.get_event_type() == "Regional":
+		if event.get_event_type() == "District Championship" or event.get_event_type() == "Championship Division" or event.get_event_type() == "Championship Finals":
 			print "Working on " + event.get_key()
 			matches = TBAconnection.get_matches_with_teams(event.get_key())
 			for match in matches:
@@ -32,6 +32,7 @@ def get_2016_data():
 					red_high_tele = match.get_red_teleop_boulders_high()
 					red_low_tele = match.get_red_teleop_boulders_low()
 					red_high_auto = match.get_red_auto_boulders_high()
+					red_low_auto = match.get_red_auto_boulders_low()
 					red_crossings = match.get_red_crossings()
 					red_scales = match.get_red_scale_points()
 					red_end_strength = match.get_red_tower_strength()
@@ -42,6 +43,7 @@ def get_2016_data():
 					blue_high_tele = match.get_blue_teleop_boulders_high()
 					blue_low_tele = match.get_blue_teleop_boulders_low()
 					blue_high_auto = match.get_blue_auto_boulders_high()
+					blue_low_auto = match.get_blue_auto_boulders_low()
 					blue_crossings = match.get_blue_crossings()
 					blue_scales = match.get_blue_scale_points()
 					blue_end_strength = match.get_blue_tower_strength()
@@ -65,6 +67,9 @@ def get_2016_data():
 						auto_points[red_auto] += 1
 					else:
 						auto_points[red_auto] = 1
+
+					if blue_low_auto + blue_low_tele + red_low_auto + red_low_tele > 25:
+						print match.get_key()
 
 					if red_high_tele in tele_high:
 						tele_high[red_high_tele] += 1

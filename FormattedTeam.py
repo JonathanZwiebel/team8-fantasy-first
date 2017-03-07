@@ -10,3 +10,10 @@ def formatted_team(team, rosters):
 			if team == roster_team:
 				return "_*" + team + " (" + roster[0] + ")*_"
 	return team
+
+def on_roster(team, rosters):
+	for roster in rosters:
+		for roster_team in roster:
+			if team == roster_team:
+				return True
+	return False
