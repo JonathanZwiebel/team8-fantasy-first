@@ -23,8 +23,8 @@ def initial_update(eventid):
 	 message = "Tracking started for " + eventid
 	 Slack.send_message(message, attach="")
 
-def quals_update(eventid, data):
-	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
+def quals_update(eventid, data, roster_file):
+	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 
 	attachment_text = ""
 
@@ -66,8 +66,8 @@ def quals_update(eventid, data):
 
 
 
-def alliance_selection_update(eventid, data):
-	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
+def alliance_selection_update(eventid, data, roster_file):
+	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 	attachment_text = ""
 
 	print(data + "/alliance_selection_data.csv")
@@ -103,8 +103,8 @@ def alliance_selection_update(eventid, data):
 	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
 	Slack.send_message(message, attachments)
 
-def elims_section_update(eventid, section, data):
-	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
+def elims_section_update(eventid, section, data, roster_file):
+	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 	attachment_text = ""
 
 	elims_section_data = open(data + "/" + section + "_data.csv")    
@@ -142,8 +142,8 @@ def elims_section_update(eventid, section, data):
 	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
 	Slack.send_message(message, attachments)
 
-def final_update(eventid, data):
-	rosters = GenerateRosterLists.generate_roster_lists("data/mar7/rosters-mar7.csv")
+def final_update(eventid, data, roster_file):
+	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 	attachment_text = ""
 
 	fantasy_point_data = open(data + "/fantasy_point_data.csv")    
