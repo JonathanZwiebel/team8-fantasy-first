@@ -1,4 +1,5 @@
 import EventDataUpdates as e
+import TeamSheets as t
 
 channel = "fantasy-first-bot"
 
@@ -13,3 +14,5 @@ e.elims_section_data_update(eventid, "semifinals", roster_file, to_slack=True)
 e.elims_section_data_update(eventid, "finals", roster_file, to_slack=True)
 e.final_data_update(eventid, roster_file, to_slack=True)
 e.player_points_data_update(eventid, roster_file, to_slack=True)
+
+# t.extract_teams_and_events(2017)

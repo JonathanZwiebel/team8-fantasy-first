@@ -4,14 +4,14 @@
 
 import TBAconnection
 
-legal_event_types = {"District", "Regional"}
+legal_event_types = {"District", "Regional", "District Championship"}
 official_event_types = {"District", "Regional", "District Championship", "Championship Division"}
 
 
 def extract_teams_and_events(year):
 	events = TBAconnection.get_event_list(year)
 
-	blank_events = ["-","-","-","-","-","-","-"]
+	blank_events = ["-","-","-","-","-","-","-","-"]
 	teams_to_events = {}
 
 	for event in events:
@@ -41,7 +41,7 @@ def extract_teams_and_events(year):
 
 	for team_number in teams_to_events:
 		file.write(str(team_number))
-		for week in range(7):
+		for week in range(8):
 			file.write("," + teams_to_events[team_number][week])
 		file.write("\n")
 
@@ -197,5 +197,3 @@ def from_teams_extract_csv_stats(infopage, csvpage):
 			out_file.write(str(team_number) + "," + teams_to_csv_stats[team_number][0] + "," + teams_to_csv_stats[team_number][1] + "," + teams_to_csv_stats[team_number][2] + "\n")
 
 	out_file.close()
-
-from_teams_extract_csv_stats("data/teamdata/teamsheets/teams_to_events.csv", "data/three_yr_sykes_elo.csv")
