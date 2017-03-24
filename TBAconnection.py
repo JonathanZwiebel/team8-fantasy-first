@@ -293,50 +293,6 @@ class FullTBATeam(object):
 		return self.locality
 
 class FullTBAMatch(object):
-
-	"""
-	Treat the "performance" instance variables as a dictionary with the 
-	following keys
-
-	  "teleopPoints"
-      "robot3Auto"
-      "breachPoints"
-      "autoPoints"
-      "teleopScalePoints"
-      "autoBouldersLow"
-      "teleopTowerCaptured"
-      "teleopBouldersLow"
-      "teleopCrossingPoints"
-      "foulCount":
-      "foulPoints"
-      "towerFaceB"
-      "towerFaceC"
-      "towerFaceA"
-      "techFoulCount"
-      "totalPoints"
-      "adjustPoints"
-      "position3"
-      "robot1Auto"
-      "position4"
-      "position5"
-      "autoBoulderPoints"
-      "teleopBoulderPoints"
-      "teleopBouldersHigh"
-      "autoBouldersHigh"
-      "robot2Auto"
-      "position1crossings"
-      "towerEndStrength"
-      "position4crossings"
-      "position2crossings"
-      "position5crossings"
-      "position3crossings"
-      "teleopChallengePoints"
-      "autoCrossingPoints"
-      "teleopDefensesBreached"
-      "autoReachPoints"
-      "position2"
-      "capturePoints"
-	"""
 	def __init__(self, match_dict):
 		self.real_data = match_dict
 		self.key = match_dict["key"].encode('ascii', 'ignore')
@@ -383,35 +339,39 @@ class FullTBAMatch(object):
 			return "red"
 		return "tie"
 
+	# Sort levels: Total Points, Foul Points
+	def get_full_winner(self):
+		if self.blue_alliance_performance["totalPoints"] > self.red_alliance_performance["totalPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["totalPoints"] < self.red_alliance_performance["totalPoints"]:
+			return "red"
+		if self.blue_alliance_performance["foulPoints"] > self.red_alliance_performance["foulPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["foulPoints"] < self.red_alliance_performance["foulPoints"]:
+			return "red"
+		if self.blue_alliance_performance["autoPoints"] > self.red_alliance_performance["autoPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["autoPoints"] < self.red_alliance_performance["autoPoints"]:
+			return "red"
+		if self.blue_alliance_performance["teleopRotorPoints"] + self.blue_alliance_performance["autoRotorPoints"] > self.red_alliance_performance["teleopRotorPoints"] + self.red_alliance_performance["autoRotorPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["teleopRotorPoints"] + self.blue_alliance_performance["autoRotorPoints"] < self.red_alliance_performance["teleopRotorPoints"] + self.red_alliance_performance["autoRotorPoints"]:
+			return "red"
+		if self.blue_alliance_performance["teleopTakeoffPoints"] > self.red_alliance_performance["teleopTakeoffPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["teleopTakeoffPoints"] < self.red_alliance_performance["teleopTakeoffPoints"]:
+			return "red"
+		if self.blue_alliance_performance["teleopFuelPoints"] + self.blue_alliance_performance["autoFuelPoints"] > self.red_alliance_performance["teleopFuelPoints"] + self.red_alliance_performance["autoFuelPoints"]:
+			return "blue"
+		if self.blue_alliance_performance["teleopFuelPoints"] + self.blue_alliance_performance["autoFuelPoints"] < self.red_alliance_performance["teleopFuelPoints"] + self.red_alliance_performance["autoFuelPoints"]:
+			return "red"
+		return "tie"
+
 	def get_blue_total(self):
 		return self.blue_alliance_performance["totalPoints"]
 
 	def get_red_total(self):
 		return self.red_alliance_performance["totalPoints"]
-
-	def get_blue_teleop_boulders_high(self):
-		return self.blue_alliance_performance["teleopBouldersHigh"]
-
-	def get_red_teleop_boulders_high(self):
-		return self.red_alliance_performance["teleopBouldersHigh"]
-
-	def get_blue_teleop_boulders_low(self):
-		return self.blue_alliance_performance["teleopBouldersLow"]
-
-	def get_red_teleop_boulders_low(self):
-		return self.red_alliance_performance["teleopBouldersLow"]
-
-	def get_blue_auto_boulders_high(self):
-		return self.blue_alliance_performance["autoBouldersHigh"]
-
-	def get_red_auto_boulders_high(self):
-		return self.red_alliance_performance["autoBouldersHigh"]
-
-	def get_blue_auto_boulders_low(self):
-		return self.blue_alliance_performance["autoBouldersLow"]
-
-	def get_red_auto_boulders_low(self):
-		return self.red_alliance_performance["autoBouldersLow"]
 
 	def get_blue_teleop_points(self):
 		return self.blue_alliance_performance["teleopPoints"]
@@ -425,84 +385,8 @@ class FullTBAMatch(object):
 	def get_red_auto_points(self):
 		return self.red_alliance_performance["autoPoints"]
 
-	def get_blue_rp(self):
-		rp = 0
-		if self.blue_alliance_performance["teleopDefensesBreached"]:
-			rp += 1
-		if self.blue_alliance_performance["teleopTowerCaptured"]:
-			rp += 1
-		if self.get_blue_total() > self.get_red_total():
-			rp += 2
-		elif self.get_blue_total() == self.get_red_total():
-			rp += 1
-		return rp
-
-	def get_red_rp(self):
-		rp = 0
-		if self.red_alliance_performance["teleopDefensesBreached"]:
-			rp += 1
-		if self.red_alliance_performance["teleopTowerCaptured"]:
-			rp += 1
-		if self.get_red_total() > self.get_blue_total():
-			rp += 2
-		elif self.get_blue_total() == self.get_red_total():
-			rp += 1
-		return rp
-
-	def get_blue_breach(self):
-		if self.blue_alliance_performance["teleopDefensesBreached"]:
-			return 1
-		return 0
-
-	def get_red_breach(self):
-		if self.red_alliance_performance["teleopDefensesBreached"]:
-			return 1
-		return 0
-
-	def get_blue_crossings(self):
-		total = 0
-		total += self.blue_alliance_performance["position1crossings"]
-		total += self.blue_alliance_performance["position2crossings"]
-		total += self.blue_alliance_performance["position3crossings"]
-		total += self.blue_alliance_performance["position4crossings"]
-		total += self.blue_alliance_performance["position5crossings"]
-		return total
-		
-	def get_red_crossings(self):
-		total = 0
-		total += self.red_alliance_performance["position1crossings"]
-		total += self.red_alliance_performance["position2crossings"]
-		total += self.red_alliance_performance["position3crossings"]
-		total += self.red_alliance_performance["position4crossings"]
-		total += self.red_alliance_performance["position5crossings"]
-		return total
-
-	def get_blue_tower_strength(self):
-		return self.red_alliance_performance["towerEndStrength"]
-
-	def get_red_tower_strength(self):
-		return self.blue_alliance_performance["towerEndStrength"]
-
-	def get_blue_scale_points(self):
-		return self.blue_alliance_performance["teleopScalePoints"]
-
-	def get_red_scale_points(self):
-		return self.red_alliance_performance["teleopScalePoints"]
-
 	def get_blue_winning_margin(self):
 		return self.blue_alliance_performance["totalPoints"] - self.red_alliance_performance["totalPoints"]
 
 	def get_red_winning_margin(self):
 		return self.red_alliance_performance["totalPoints"] - self.blue_alliance_performance["totalPoints"]
-
-	def get_blue_high(self):
-		return self.blue_alliance_performance["teleopBouldersHigh"] + self.blue_alliance_performance["autoBouldersHigh"]
-
-	def get_red_high(self):
-		return self.red_alliance_performance["teleopBouldersHigh"] + self.red_alliance_performance["autoBouldersHigh"]
-
-	def get_blue_low(self):
-		return self.blue_alliance_performance["teleopBouldersLow"] + self.blue_alliance_performance["autoBouldersLow"]
-
-	def get_red_low(self):
-		return self.red_alliance_performance["teleopBouldersLow"] + self.red_alliance_performance["autoBouldersLow"]
