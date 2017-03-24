@@ -35,7 +35,7 @@ def generate(location, date):
 				district = "None"
 			name = full_team.get_nickname()
 
-			file_out.write(str(team) + "," + name + "," + district)
+			file_out.write(str(team) + "," + ''.join([i if ord(i) < 128 else "" for i in name]) + "," + district)
 			for i in range(1, 10):
 				file_out.write(",")
 				if i in events_on_week:
