@@ -131,10 +131,7 @@ def elims_section_update(eventid, section, data):
 		attachment_text += "beat  "
 		for i in range(4, 7):
 			attachment_text += formatted_team(str(match[commas[i-1]+1:commas[i]][3:]), rosters) + "  "
-		if match[commas[6]+1:] == "True":
-			attachment_text += "in a 2-1 series"
-		else:
-			attachment_text += "in a 2-0 series"
+		attachment_text += "in a " + match[commas[6]+1:] + " series"
 		attachment_text += "\n"
 
 	print attachment_text

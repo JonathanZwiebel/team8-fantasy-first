@@ -109,40 +109,62 @@ def elims_section_data_update(eventid, section, to_slack = False):
 
 	winners = {}
 	losers = {}
-	tiebreak = {}
 	eliminated = open(output + "/" + section + "eliminated.csv", "w")
+
+	wins_by_winner = {}
+	overall_winner = {}
+	overall_loser = {}
+
 	for i in range(section_count[section]):
+		wins_by_winner[i] = {"red":0, "blue":0, "tie":0}
+
 		match1 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m1")
-		match1_winner = match1.get_winner()
 		match2 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m2")
-		match2_winner = match2.get_winner()
-		if match1_winner == match2_winner:
-			tiebreak[i] = False
-			if match1_winner == "red":
-				winners[i] = match2.get_red_alliance().get_teams()
-				losers[i] = match2.get_blue_alliance().get_teams()
-			elif match1_winner == "blue":
-				winners[i] = match2.get_blue_alliance().get_teams()
-				losers[i] = match2.get_red_alliance().get_teams()
-			else:
-				print "tied match error"
+		if section == "f":
+			match1_winner = match1.get_winner()
+			match2_winner = match2.get_winner()
 		else:
-			tiebreak[i] = True
-			match3 = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m3")
-			match3_winner = match3.get_winner()
-			if match3_winner == "red":
-				winners[i] = match3.get_red_alliance().get_teams()
-				losers[i] = match3.get_blue_alliance().get_teams()
-			elif match3_winner == "blue":
-				winners[i] = match3.get_blue_alliance().get_teams()
-				losers[i] = match3.get_red_alliance().get_teams()
-			else:
-				print "tied match error"	
+			match1_winner = match1.get_full_winner()
+			match2_winner = match2.get_full_winner()
+
+		wins_by_winner[i][match1_winner] += 1
+		wins_by_winner[i][match2_winner] += 1
+		latest_match = match2
+
+
+		games_counted = 2
+
+		while wins_by_winner[i]["red"] < 2 and wins_by_winner[i]["blue"] < 2:
+			tiebreak_match = TBAconnection.get_match(eventid + "_" + section_id[section] + str(i+1) + "m" + str(games_counted + 1))
+			winner = tiebreak_match.get_full_winner()
+			wins_by_winner[i][winner] += 1
+			games_counted += 1
+			latest_match = tiebreak_match
+
+		print "RED: " + str(wins_by_winner[i]["red"]) + " | BLUE: " + str(wins_by_winner[i]["blue"])
+
+
+		if wins_by_winner[i]["red"] == 2:
+			winners[i] = latest_match.get_red_alliance().get_teams()
+			losers[i] = latest_match.get_blue_alliance().get_teams()
+			overall_winner[i] = "red"
+			overall_loser[i] = "blue"
+		elif wins_by_winner[i]["blue"] == 2:
+			winners[i] = latest_match.get_blue_alliance().get_teams()
+			losers[i] = latest_match.get_red_alliance().get_teams()
+			overall_winner[i] = "blue"
+			overall_loser[i] = "red"
+		else:
+			print "Elimination Error"
+
+		print "WINNER: " + overall_winner[i] + " | LOSER: " + overall_loser[i]
+
+		if wins_by_winner[i][overall_loser[i]] > 0:
 			for loser in losers[i]:
 				eliminated.write(str(loser[3:]) + "\n")
+
 	eliminated.close()
 
-	# Match, Winning alliance (3), Losing alliance (3), Tiebreak
 	for i in range(section_count[section]):
 		f.write(str(i) + ",")
 		for j in range(len(winners[i])):
