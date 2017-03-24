@@ -1,5 +1,6 @@
 *.txt
 *.pyc
 *.csv
+Slack.py
 data/*
 __pycache__/
