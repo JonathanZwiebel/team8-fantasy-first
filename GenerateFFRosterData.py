@@ -42,7 +42,3 @@ def generate(location, date):
 					file_out.write(events_on_week[i][4:])
 			file_out.write("\n")
 		file_out.close()
-
-
-
-generate("C:/users/user/git/tba-stats/data", "mar7")
