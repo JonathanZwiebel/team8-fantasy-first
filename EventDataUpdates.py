@@ -45,7 +45,8 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 	output = "data/fantasy/" + eventid
 	f = open(output + "/qual_data.csv", "w")
 	bp_f = open(output + "/bonus_point_data.csv", "w")
-
+	high_scores_txt = open(output + "/high_scores.txt", "w")
+	winning_margins_txt = open(output + "/winning_margins.txt", "w")
 
 	matches = TBAconnection.get_matches_with_teams(eventid)
 
@@ -106,10 +107,15 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 	for alliance in high_score_alliances:
 		for hs_team in high_score_alliances[alliance].get_teams():
 			hs_teams.append(hs_team[3:])
+			high_scores_txt.write(hs_team[3:] + "\n")
 
 	for alliance in highest_wm_alliances:
 		for wm_team in highest_wm_alliances[alliance].get_teams():
 			wm_teams.append(wm_team[3:])
+			winning_margins_txt.write(wm_team[3:] + "\n")
+
+	high_scores_txt.close()
+	winning_margins_txt.close()
 
 	print hs_teams
 	print wm_teams
@@ -154,8 +160,8 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 
 		points = rp_points + seed_points + record_points + bonus_points
 
-		# Team, Fantasy Points, RP, Record, HS, WM
-		f.write(str(team[1]) + "," + str(points) + "," + str(rp) + "," + str(team[8]) + "," + record_bonus + "," + str(winning_margin) + "," + str(high_score) + "\n")
+		# Team, Fantasy Points, Ranking, RP, Record, HS, WM
+		f.write(str(team[1]) + "," + str(points) + "," + str((i + 1)) + "," + str(rp) + "," + str(team[8]) + "," + record_bonus + "," + str(winning_margin) + "," + str(high_score) + "\n")
 	f.close()
 
 	if to_slack:
@@ -364,9 +370,12 @@ def player_points_data_update(eventid, roster_file, to_slack=True):
 	week = event.get_week()
 	event_type = event.get_event_type()
 
+
+
 	output = "data/fantasy"
 
 	fantasy_point_data = open(output + "/" + eventid + "/fantasy_point_data.csv", "r")    
+
 	with fantasy_point_data:
 		content = fantasy_point_data.read().splitlines()
 	fantasy_point_data.close()

@@ -43,11 +43,11 @@ def quals_update(eventid, data, roster_file, highest_score, highest_wm):
 
 		number = split_content[0]
 		fantasy_points = split_content[1]
-		rp = split_content[2]
-		record = split_content[3]
-		record_bonus = split_content[4]
-		high_score = split_content[5] == "True"
-		winning_margin = split_content[6] == "True"
+		rp = split_content[3]
+		record = split_content[4]
+		record_bonus = split_content[5]
+		high_score = split_content[6] == "True"
+		winning_margin = split_content[7] == "True"
 
 		if(on_roster(str(number), rosters)):
 			attachment_text += "Team " + formatted_team(str(number), rosters)
@@ -71,8 +71,7 @@ def quals_update(eventid, data, roster_file, highest_score, highest_wm):
 	print attachment_text
 	attachments = get_default_attachement(eventid, attachment_text)
 
-	message = "Qualification results are out at the *" + event_name+ "*!"
-	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
+	message = "Qualification results are out at the *" + event_name+ "*! - thebluealliance.com/event/" + eventid
 
 	Slack.send_message(message, attachments)
 
@@ -110,9 +109,8 @@ def alliance_selection_update(eventid, data, roster_file):
 	print attachment_text
 	attachments = get_default_attachement(eventid, attachment_text)
 
-	message = "Alliance selection is complete at the *" + event_name+ "*!"
+	message = "Alliance selection is complete at the *" + event_name+ "*! - thebluealliance.com/event/" + eventid
 	message += " Alliances are listed in pick order with Alliance Captain first."
-	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
 	Slack.send_message(message, attachments)
 
 def elims_section_update(eventid, section, data, roster_file):
@@ -150,8 +148,7 @@ def elims_section_update(eventid, section, data, roster_file):
 
 	attachments = get_default_attachement(eventid, attachment_text)
 
-	message = "Results are out for *" + section + "* at the *" + event_name+ "*!"
-	message += "\nCheck thebluealliance.com/event/" + eventid + " for updates."
+	message = "Results are out for *" + section + "* at the *" + event_name+ "*! - thebluealliance.com/event/" + eventid
 	Slack.send_message(message, attachments)
 
 def final_update(eventid, data, roster_file):
@@ -178,8 +175,7 @@ def final_update(eventid, data, roster_file):
 
 	attachments = get_default_attachement(eventid, attachment_text)
 
-	message = "We're all wrapped up at the *" + event_name+ "*!"
-	message += "\nCheck thebluealliance.com/event/" + eventid + " for final results."
+	message = "We're all wrapped up at the *" + event_name+ "*! - thebluealliance.com/event/" + eventid
 	Slack.send_message(message, attachments)
 
 def players_points_update(eventid, data, week):
