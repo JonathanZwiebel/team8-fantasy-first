@@ -159,6 +159,9 @@ class Alliance:
 	def as_string(self):
 		return " ".join(self.teams)
 
+	def as_csv_string(self):
+		return ",".join(self.teams)
+
 class BasicTBAMatch(object):
 
 	def __init__(self, match_dict):
@@ -314,6 +317,9 @@ class FullTBAMatch(object):
 
 	def get_key(self):
 		return self.key
+
+	def get_level(self):
+		return self.level
 
 	def get_good(self):
 		return not self.bad

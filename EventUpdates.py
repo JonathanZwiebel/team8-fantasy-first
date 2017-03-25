@@ -23,7 +23,7 @@ def initial_update(eventid):
 	 message = "Tracking started for " + eventid
 	 Slack.send_message(message, attach="")
 
-def quals_update(eventid, data, roster_file):
+def quals_update(eventid, data, roster_file, highest_score, highest_wm):
 	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 
 	attachment_text = ""
@@ -39,21 +39,33 @@ def quals_update(eventid, data, roster_file):
 	info_data.close()
 
 	for i in range(len(content)):
-		comma1 = content[i].index(",")
-		comma2 = content[i].index(",", comma1 + 1)
-		comma3 = content[i].index(",", comma2 + 1)
+		split_content = content[i].split(',')
 
-		number = content[i][:comma1]
-		fantasy_points = content[i][comma1+1:comma2]
-		rp = content[i][comma2+1:comma3]
-		record = content[i][comma3+1:]
+		number = split_content[0]
+		fantasy_points = split_content[1]
+		rp = split_content[2]
+		record = split_content[3]
+		record_bonus = split_content[4]
+		high_score = split_content[5] == "True"
+		winning_margin = split_content[6] == "True"
 
 		if(on_roster(str(number), rosters)):
 			attachment_text += "Team " + formatted_team(str(number), rosters)
 			attachment_text += " scores *" + str(fantasy_points) + "* fantasy points"
 			attachment_text += " with " + str(rp) + " RP"
-			attachment_text += " going " + str(record)
+			attachment_text += " going "
+			if record_bonus == "big":
+				attachment_text += "an *undefeated* "
+			if record_bonus == "small":
+				attachment_text += "an impressive "
+			attachment_text += str(record)
 			attachment_text += " and ends up ranked in the #" + str(i + 1) + " spot"
+			if high_score and not winning_margin:
+				attachment_text += " with the high score of " + str(highest_score)
+			elif winning_margin and not high_score:
+				attachment_text += " with the highest winning margin of " + str(highest_wm)
+			elif winning_margin and high_score:
+				attachment_text += " with both the high score of " + str(highest_score) + " and highest winning margin of " + str(highest_wm) + "!"
 			attachment_text += "\n"
 
 	print attachment_text

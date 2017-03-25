@@ -44,6 +44,75 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 
 	output = "data/fantasy/" + eventid
 	f = open(output + "/qual_data.csv", "w")
+	bp_f = open(output + "/bonus_point_data.csv", "w")
+
+
+	matches = TBAconnection.get_matches_with_teams(eventid)
+
+	highest_score = -1
+	highest_wm = -1
+
+	high_score_alliances = {}
+	highest_wm_alliances = {}
+
+	for match in matches:
+		if match.get_level() != "qm":
+			continue
+
+		match_id = match.get_key()
+
+		blue_total = match.get_blue_total()
+		red_total = match.get_red_total()
+
+		if blue_total >= highest_score:
+			if blue_total > highest_score:
+				high_score_alliances = {}
+			highest_score = blue_total
+			high_score_alliances[match_id] = match.get_blue_alliance()
+		if red_total >= highest_score:
+			if red_total > highest_score:
+				high_score_alliances = {}
+			highest_score = red_total
+			high_score_alliances[match_id] = match.get_red_alliance()
+
+		if blue_total - red_total >= highest_wm:
+			if blue_total - red_total > highest_wm:
+				highest_wm_alliances = {}
+			highest_wm = blue_total - red_total
+			highest_wm_alliances[match_id] = match.get_blue_alliance()
+		if red_total - blue_total >= highest_wm:
+			if red_total - blue_total > highest_wm:
+				highest_wm_alliances = {}
+			highest_wm = red_total - blue_total
+			highest_wm_alliances[match_id] = match.get_red_alliance()
+
+	print "High score of " + str(highest_score) + " by teams "
+	for alliance in high_score_alliances:
+		print high_score_alliances[alliance].as_string() + ","
+	print "Highest WM of " + str(highest_wm) + " by teams " 
+	for alliance in highest_wm_alliances:
+		print highest_wm_alliances[alliance].as_string() + ","
+
+	for alliance in high_score_alliances:
+		bp_f.write(high_score_alliances[alliance].as_csv_string())
+	bp_f.write("\n")
+	for alliance in highest_wm_alliances:
+		bp_f.write(highest_wm_alliances[alliance].as_csv_string())
+	bp_f.close()
+
+	hs_teams = []
+	wm_teams = []
+
+	for alliance in high_score_alliances:
+		for hs_team in high_score_alliances[alliance].get_teams():
+			hs_teams.append(hs_team[3:])
+
+	for alliance in highest_wm_alliances:
+		for wm_team in highest_wm_alliances[alliance].get_teams():
+			wm_teams.append(wm_team[3:])
+
+	print hs_teams
+	print wm_teams
 
 	for i in range(len(qual_ranking.get_ranking()) - 1):
 		team = qual_ranking.get_team_in_rank(i + 1)
@@ -54,6 +123,14 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 		rp = round((plays) * float(team[2]))
 		rp_points = 1.5 * rp
 
+		high_score = False
+		winning_margin = False
+
+		if str(team[1]) in hs_teams:
+			high_score = True
+		if str(team[1]) in wm_teams:
+			winning_margin = True
+
 		if i < 8:
 			seed_points = points_for_rank[i]
 		else:
@@ -61,18 +138,28 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 
 		if plays - wins == 0:
 			record_points = 11
+			record_bonus = "big"
 		elif plays - wins <= 2:
 			record_points = 5
+			record_bonus = "small"
 		else:
 			record_points = 0
+			record_bonus = "none"
 
-		points = rp_points + seed_points + record_points
+		bonus_points = 0
+		if winning_margin:
+			bonus_points += 3
+		if high_score:
+			bonus_points += 3
 
-		# Team, Fantasy Points, RP, Record
-		f.write(str(team[1]) + "," + str(points) + "," + str(rp) + "," + str(team[8]) + "\n")
+		points = rp_points + seed_points + record_points + bonus_points
+
+		# Team, Fantasy Points, RP, Record, HS, WM
+		f.write(str(team[1]) + "," + str(points) + "," + str(rp) + "," + str(team[8]) + "," + record_bonus + "," + str(winning_margin) + "," + str(high_score) + "\n")
 	f.close()
+
 	if to_slack:
-		EventUpdates.quals_update(eventid, output, roster_file)
+		EventUpdates.quals_update(eventid, output, roster_file, highest_score, highest_wm)
 
 def alliance_selection_data_update(eventid, roster_file, to_slack = False):
 	event = TBAconnection.get_event(eventid)
