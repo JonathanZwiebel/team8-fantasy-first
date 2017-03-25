@@ -57,7 +57,7 @@ def quals_data_update(eventid, roster_file, to_slack = False):
 	highest_wm_alliances = {}
 
 	for match in matches:
-		if match.get_level() != "qm":
+		if match.get_level() != "qm" or not match.get_good():
 			continue
 
 		match_id = match.get_key()
@@ -198,11 +198,11 @@ def elims_section_data_update(eventid, section, roster_file, to_slack = False):
 	output = "data/fantasy/" + eventid
 
 	f = open(output + "/" + section + "_data.csv", "w")
-	elim_scoring = open(output + "/" + section + "_winners.csv", "w")
+	elim_scoring = open(output + "/" + section + "_winners.txt", "w")
 
 	winners = {}
 	losers = {}
-	eliminated = open(output + "/" + section + "eliminated.csv", "w")
+	eliminated = open(output + "/" + section + "eliminated.txt", "w")
 
 	wins_by_winner = {}
 	overall_winner = {}
@@ -282,12 +282,12 @@ def final_data_update(eventid, roster_file, to_slack = False):
 	quals_data = open(data +"/qual_data.csv", "r")
 	on_alliance_data = open(data + "/on_alliances.txt", "r")
 	alliance_captain_data = open(data + "/alliance_captains.txt", "r")
-	qf_winners_data = open(data + "/quarterfinals_winners.csv", "r")    
-	sf_winners_data = open(data + "/semifinals_winners.csv", "r")  
-	f_winners_data = open(data + "/finals_winners.csv", "r")
-	qf_eliminated_data = open(data + "/quarterfinalseliminated.csv", "r")    
-	sf_eliminated_data = open(data + "/semifinalseliminated.csv", "r")  
-	f_eliminated_data = open(data + "/finalseliminated.csv", "r")
+	qf_winners_data = open(data + "/quarterfinals_winners.txt", "r")    
+	sf_winners_data = open(data + "/semifinals_winners.txt", "r")  
+	f_winners_data = open(data + "/finals_winners.txt", "r")
+	qf_eliminated_data = open(data + "/quarterfinalseliminated.txt", "r")    
+	sf_eliminated_data = open(data + "/semifinalseliminated.txt", "r")  
+	f_eliminated_data = open(data + "/finalseliminated.txt", "r")
 	fantasy_point_data = open(data + "/fantasy_point_data.csv", "w")
 
 	with quals_data:
