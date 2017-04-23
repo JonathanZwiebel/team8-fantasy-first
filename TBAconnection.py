@@ -391,8 +391,74 @@ class FullTBAMatch(object):
 	def get_red_auto_points(self):
 		return self.red_alliance_performance["autoPoints"]
 
+	def get_red_fuel_points(self):
+		return self.red_alliance_performance["autoFuelPoints"] + self.red_alliance_performance["teleopFuelPoints"]
+
+	def get_blue_fuel_points(self):
+		return self.blue_alliance_performance["autoFuelPoints"] + self.blue_alliance_performance["teleopFuelPoints"]
+
+	def get_red_tele_fuel_points(self):
+		return self.red_alliance_performance["teleopFuelPoints"]
+
+	def get_blue_tele_fuel_points(self):
+		return self.blue_alliance_performance["teleopFuelPoints"]
+
+	def get_red_auto_fuel_points(self):
+		return self.red_alliance_performance["autoFuelPoints"]
+
+	def get_blue_auto_fuel_points(self):
+		return self.blue_alliance_performance["autoFuelPoints"]
+
+	def get_red_fuel_high(self):
+		return self.red_alliance_performance["autoFuelHigh"] + self.red_alliance_performance["teleopFuelHigh"]
+
+	def get_blue_fuel_high(self):
+		return self.blue_alliance_performance["autoFuelHigh"] + self.blue_alliance_performance["teleopFuelHigh"]
+
+	def get_red_tele_fuel_high(self):
+		return self.red_alliance_performance["teleopFuelHigh"]
+
+	def get_blue_tele_fuel_high(self):
+		return self.blue_alliance_performance["teleopFuelHigh"]
+
+	def get_red_auto_fuel_high(self):
+		return self.red_alliance_performance["autoFuelHigh"]
+
+	def get_blue_auto_fuel_high(self):
+		return self.blue_alliance_performance["autoFuelHigh"]
+
+	def get_red_fuel_low(self):
+		return self.red_alliance_performance["autoFuelLow"] + self.red_alliance_performance["teleopFuelLow"]
+
+	def get_blue_fuel_low(self):
+		return self.blue_alliance_performance["autoFuelLow"] + self.blue_alliance_performance["teleopFuelLow"]
+
+	def get_red_tele_fuel_low(self):
+		return self.red_alliance_performance["teleopFuelLow"]
+
+	def get_blue_tele_fuel_low(self):
+		return self.blue_alliance_performance["teleopFuelLow"]
+
+	def get_red_auto_fuel_low(self):
+		return self.red_alliance_performance["autoFuelLow"]
+
+	def get_blue_auto_fuel_low(self):
+		return self.blue_alliance_performance["autoFuelLow"]
+
 	def get_blue_winning_margin(self):
 		return self.blue_alliance_performance["totalPoints"] - self.red_alliance_performance["totalPoints"]
 
 	def get_red_winning_margin(self):
 		return self.red_alliance_performance["totalPoints"] - self.blue_alliance_performance["totalPoints"]
+
+	def get_red_rotor_rp(self):
+		return self.red_alliance_performance["rotorRankingPointAchieved"]
+
+	def get_blue_rotor_rp(self):
+		return self.blue_alliance_performance["rotorRankingPointAchieved"]
+
+	def get_red_kpa_rp(self):
+		return self.red_alliance_performance["kPaRankingPointAchieved"]
+
+	def get_blue_kpa_rp(self):
+		return self.blue_alliance_performance["kPaRankingPointAchieved"]
