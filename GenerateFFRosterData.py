@@ -2,6 +2,9 @@ import TBAconnection
 
 teams_per_roster = 12
 
+houston = ["carv", "gal", "hop", "new", "roe", "tur"]
+stlouis = ["arc", "cars", "cur", "dal", "dar", "tes"]
+
 def generate(location, date):
 	filein = location + "/" + date + "/rosters-" + date + ".csv"
 	f = open(filein, "r")
@@ -25,6 +28,10 @@ def generate(location, date):
 			for event in events:
 				week = event.get_week()
 				key = event.get_key()
+				if key[4:] in houston:
+					week = 8
+				if key[4:] in stlouis:
+					week = 9
 				events_on_week[week] = key
 			print events_on_week
 			full_team = TBAconnection.get_team(team)
