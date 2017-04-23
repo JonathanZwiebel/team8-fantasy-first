@@ -208,6 +208,7 @@ class TBAEvent(object):
 		self.real_data = event_dict
 		self.key = event_dict["key"]
 		self.name = event_dict["name"]
+		self.short_name = event_dict["short_name"]
 		self.event_type_string = event_dict["event_type_string"]
 		self.event_district_string = event_dict["event_district_string"]
 		self.week = event_dict["week"]
@@ -220,6 +221,9 @@ class TBAEvent(object):
 
 	def get_name(self):
 		return self.name
+
+	def get_short_name(self):
+		return self.short_name
 
 	def get_event_type(self):
 		return self.event_type_string
