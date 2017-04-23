@@ -361,7 +361,7 @@ def final_data_update(eventid, roster_file, to_slack = False):
 	if to_slack:
 		EventUpdates.final_update(eventid, data,roster_file)
 
-mutlipliers = {"Regional" : 1, "District" : 0.5, "District Championship" : 1.5, "Championship Division" : 1.5}
+mutlipliers = {"Regional" : 1, "District" : 0.5, "District Championship" : 1.5, "District Championship Division" : 0.75, "Championship Division" : 1.5}
 def player_points_data_update(eventid, roster_file, to_slack=True):
 	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 	fantasy_scores = {}
