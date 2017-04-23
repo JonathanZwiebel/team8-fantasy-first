@@ -46,8 +46,8 @@ def quals_update(eventid, data, roster_file, highest_score, highest_wm):
 		rp = split_content[3]
 		record = split_content[4]
 		record_bonus = split_content[5]
-		high_score = split_content[6] == "True"
-		winning_margin = split_content[7] == "True"
+		high_score = split_content[7] == "True"
+		winning_margin = split_content[6] == "True"
 
 		if(on_roster(str(number), rosters)):
 			attachment_text += "Team " + formatted_team(str(number), rosters)
