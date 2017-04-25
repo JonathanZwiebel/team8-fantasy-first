@@ -2,6 +2,7 @@ import TBAconnection
 
 teams_per_roster = 12
 
+einstein = ["cmptx", "cmpmo"]
 houston = ["carv", "gal", "hop", "new", "roe", "tur"]
 stlouis = ["arc", "cars", "cur", "dal", "dar", "tes"]
 
@@ -28,6 +29,8 @@ def generate(location, date):
 			for event in events:
 				week = event.get_week()
 				key = event.get_key()
+				if key[4:] in einstein:
+					continue
 				if key[4:] in houston:
 					week = 8
 				if key[4:] in stlouis:
