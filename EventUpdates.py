@@ -92,18 +92,12 @@ def alliance_selection_update(eventid, data, roster_file):
 		event_name = info_data.read().splitlines()[0]
 	info_data.close()
 
-	# TODO: Find some library that can process csv files
 	for alliance in content:
-		commas = [alliance.index(",")]
-		last_index = commas[0]
-		while alliance.find(",", last_index + 1) != -1:
-			last_index = alliance.index(",", last_index + 1)
-			commas.append(last_index)
-		commas.append(len(alliance))
+		alliance_members = alliance.split(",") # 0 is alliance rank
 
-		attachment_text += "*Alliance " + alliance[:commas[0]] + "*"
-		for i in range(1, len(commas)):
-			attachment_text += "  |  " + formatted_team(str(alliance[commas[i-1]+1:commas[i]][3:]), rosters)
+		attachment_text += "*Alliance " + alliance_members[0] + "*"
+		for i in range(1, len(alliance_members)):
+			attachment_text += "  |  " + formatted_team(alliance_members[i][3:], rosters)
 		attachment_text += "\n"
 
 	print attachment_text
@@ -113,7 +107,7 @@ def alliance_selection_update(eventid, data, roster_file):
 	message += " Alliances are listed in pick order with Alliance Captain first."
 	Slack.send_message(message, attachments)
 
-def elims_section_update(eventid, section, data, roster_file):
+def elims_section_update(eventid, section, data, roster_file, expanded_alliances=False):
 	rosters = GenerateRosterLists.generate_roster_lists(roster_file)
 	attachment_text = ""
 
@@ -136,12 +130,17 @@ def elims_section_update(eventid, section, data, roster_file):
 			last_index = match.index(",", last_index + 1)
 			commas.append(last_index)
 
-		for i in range(1, 4):
+		if expanded_alliances:
+			spacer = 4
+		else:
+			spacer = 3
+
+		for i in range(1, 1 + spacer):
 			attachment_text += formatted_team(str(match[commas[i-1]+1:commas[i]][3:]), rosters) + "  "
 		attachment_text += "beat  "
-		for i in range(4, 7):
+		for i in range(1 + spacer, 1 + 2*spacer):
 			attachment_text += formatted_team(str(match[commas[i-1]+1:commas[i]][3:]), rosters) + "  "
-		attachment_text += "in a " + match[commas[6]+1:] + " series"
+		attachment_text += "in a " + match[commas[spacer*2]+1:] + " series"
 		attachment_text += "\n"
 
 	print attachment_text

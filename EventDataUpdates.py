@@ -11,6 +11,33 @@ import GenerateRosterLists
 
 points_for_rank = [45, 35, 25, 20, 15, 10, 7, 3]
 
+def extract_expanded_alliance(test_alliance, location):
+	file_loc = location + "/alliance_selection_data.csv"
+	alliances = open(file_loc, "r")
+	content = alliances.read().split("\n")
+
+
+	for full_alliance in content:
+		print full_alliance
+		if len(full_alliance) < 2:
+			break
+		alliance_members = full_alliance.split(",")
+		captain = alliance_members[1]
+		if captain in test_alliance:
+			alliances.close()
+			return alliance_members[1:]
+
+	for full_alliance in content:
+		alliance_members = full_alliance.split(",")
+		second = alliance_members[2]
+		if second in test_alliance:
+			alliances.close()
+			return alliance_members[1:]
+
+	print "Full alliance not found for " + str(alliance)
+	alliances.close()
+
+
 # Gets general data from an event such as name, location, and teams. Creates a folder
 # for the event.
 # To be run before an event begins
@@ -194,7 +221,7 @@ def alliance_selection_data_update(eventid, roster_file, to_slack = False):
 # Section should be one of: eights, quarterfinals, semifinals, finals
 section_count = {"eights":8, "quarterfinals":4, "semifinals":2, "finals":1}
 section_id = {"eights":"ef", "quarterfinals":"qf", "semifinals":"sf", "finals":"f"}
-def elims_section_data_update(eventid, section, roster_file, to_slack = False):
+def elims_section_data_update(eventid, section, roster_file, to_slack = False, expanded_alliances=False):
 	output = "data/fantasy/" + eventid
 
 	f = open(output + "/" + section + "_data.csv", "w")
@@ -238,13 +265,21 @@ def elims_section_data_update(eventid, section, roster_file, to_slack = False):
 
 
 		if wins_by_winner[i]["red"] == 2:
-			winners[i] = latest_match.get_red_alliance().get_teams()
-			losers[i] = latest_match.get_blue_alliance().get_teams()
+			if not expanded_alliances:
+				winners[i] = latest_match.get_red_alliance().get_teams()
+				losers[i] = latest_match.get_blue_alliance().get_teams()
+			else:
+				winners[i] = extract_expanded_alliance(latest_match.get_red_alliance().get_teams(), output)
+				losers[i] = extract_expanded_alliance(latest_match.get_blue_alliance().get_teams(), output)
 			overall_winner[i] = "red"
 			overall_loser[i] = "blue"
 		elif wins_by_winner[i]["blue"] == 2:
-			winners[i] = latest_match.get_blue_alliance().get_teams()
-			losers[i] = latest_match.get_red_alliance().get_teams()
+			if not expanded_alliances:
+				winners[i] = latest_match.get_blue_alliance().get_teams()
+				losers[i] = latest_match.get_red_alliance().get_teams()
+			else:
+				winners[i] = extract_expanded_alliance(latest_match.get_blue_alliance().get_teams(), output)
+				losers[i] = extract_expanded_alliance(latest_match.get_red_alliance().get_teams(), output)
 			overall_winner[i] = "blue"
 			overall_loser[i] = "red"
 		else:
@@ -270,7 +305,7 @@ def elims_section_data_update(eventid, section, roster_file, to_slack = False):
 	elim_scoring.close()
 
 	if to_slack:
-		EventUpdates.elims_section_update(eventid, section, output, roster_file)
+		EventUpdates.elims_section_update(eventid, section, output, roster_file, expanded_alliances)
 
 # To be run at the end of an event
 # Calculates the earned fantasy points of all teams
