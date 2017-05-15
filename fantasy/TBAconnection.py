@@ -71,6 +71,22 @@ def get_teams_at_event(eventKey):
 
 	return return_val
 
+def get_team_media(number, year):
+	"""
+	Method that will return a list of meida for a team in a particular year
+	"""
+	url = "http://www.thebluealliance.com/api/v2/team/" + "frc" + str(number) + "/" + str(year) + "/media" + '?X-TBA-App-Id=frc8%3Afantasy-league%3Adev'
+	print "Requesting " + url
+	request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+	data = urllib2.urlopen(request).read().decode('utf-8')
+	jsonvar = json.loads(data)
+	
+
+	team_media = []
+	for media in jsonvar:
+		team_media.append(TBAMedia(media))
+	return team_media
+
 def get_match(matchkey):
 	"""
 	Method that will return a SuperMatch
@@ -135,6 +151,22 @@ def get_team_events(team_number, year):
 	for i in jsonvar:
 		return_val.append(TBAEvent(i))
 	return return_val
+
+def get_team_list(max_page):
+	teams = []
+
+	for i in range(max_page + 1):
+		url = "http://www.thebluealliance.com/api/v2/teams/" + str(i) + '?X-TBA-App-Id=frc8%3Afantasy-league%3Atesting'
+		print "Requesting " + url
+		request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'})
+		data = urllib2.urlopen(request).read().decode('utf-8')
+		jsonvar = json.loads(data)
+
+		for content in jsonvar:
+			teams.append(FullTBATeam(content))
+
+	return teams
+
 
 award_numbers = {0 : "Chairman's", 1 : "Winners", 2 : "Finalists"}
 class EventAwards:
@@ -257,6 +289,64 @@ class TBAEvent(object):
 		for alliance in self.tba_alliances:
 			alliances_list.append(alliance["picks"])
 		return alliances_list
+
+class TBAMedia(object):
+	
+	def __init__(self, media_dict):
+		self.media_dict = media_dict
+		self.type = media_dict["type"]
+		self.details = media_dict["details"]
+		self.is_cad = self.type == "grabcad"
+		self.foreign_key = media_dict["foreign_key"]
+
+		if self.is_cad:
+			self.grabcad_description = self.details["model_description"]
+			self.grabcad_image = self.details["model_image"]
+			self.grabcad_created = self.details["model_created"]
+			self.grabcad_name = self.details["model_name"]
+
+		self.text = self.type + " at " + self.foreign_key
+		if self.is_cad:
+			self.text += " called " + self.grabcad_name
+
+	def get_text(self):
+		return self.text
+
+	def get_dict(self):
+		return self.media_dict
+
+	def get_type(self):
+		return self.type
+
+	def get_details(self):
+		return self.details
+
+	def get_grabcad_description(self):
+		if not self.is_cad:
+			return "not a cad"
+		return self.grabcad_description
+
+	def get_is_cad(self):
+		return self.is_cad
+
+	def get_foreign_key(self):
+		return self.foreign_key
+
+	def get_grabcad_image(self):
+		if not self.is_cad:
+			return "not a cad"
+		return self.grabcad_image
+
+	def get_grabcad_created(self):
+		if not self.is_cad:
+			return "not a cad"
+		return self.grabcad_created
+
+	def get_grabcad_name(self):
+		if not self.is_cad:
+			return "not a cad"
+		return self.grabcad_name
+
 
 class FullTBATeam(object):
 	"""
